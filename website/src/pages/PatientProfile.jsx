@@ -118,18 +118,18 @@ const PatientProfile = () => {
                     <div className="lg:col-span-8 space-y-8 italic">
 
                         {/* Summary Cards */}
-                        <div className="grid md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-6">
                             {[
                                 { title: 'Appointments', value: '12', icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
                                 { title: 'Prescriptions', value: '08', icon: FileText, color: 'text-purple-600', bg: 'bg-purple-50' },
                                 { title: 'Active Orders', value: '02', icon: Package, color: 'text-medical-600', bg: 'bg-medical-50' },
                             ].map((card) => (
-                                <div key={card.title} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex flex-col items-center text-center shadow-lg shadow-slate-200/50">
-                                    <div className={`w-14 h-14 ${card.bg} ${card.color} rounded-2xl flex items-center justify-center mb-4`}>
-                                        <card.icon className="w-6 h-6" />
+                                <div key={card.title} className="bg-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 flex flex-col items-center text-center shadow-lg shadow-slate-200/50">
+                                    <div className={`w-10 h-10 md:w-14 md:h-14 ${card.bg} ${card.color} rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-4`}>
+                                        <card.icon className="w-5 h-5 md:w-6 md:h-6" />
                                     </div>
-                                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">{card.title}</h5>
-                                    <p className="text-3xl font-black text-slate-900 italic">{card.value}</p>
+                                    <h5 className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic truncate w-full">{card.title}</h5>
+                                    <p className="text-xl md:text-3xl font-black text-slate-900 italic">{card.value}</p>
                                 </div>
                             ))}
                         </div>

@@ -18,7 +18,8 @@ import {
     Brain,
     Bone,
     HeartPulse,
-    ArrowRight
+    ArrowRight,
+    Ambulance
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -254,6 +255,51 @@ const Home = () => {
                                 <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No clinical results for "{searchQuery}"</p>
                             </div>
                         )}
+                    </div>
+                </section>
+
+                {/* Ambulance Preview Section */}
+                <section className="py-24 bg-white relative overflow-hidden">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                        <div className="bg-slate-900 rounded-[4rem] p-10 lg:p-20 text-white relative overflow-hidden italic">
+                            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-medical-500/10 blur-[120px] rounded-full -mr-48 -mt-48" />
+                            <div className="flex flex-col lg:flex-row items-center gap-16 relative z-10">
+                                <div className="lg:w-1/2">
+                                    <div className="inline-flex items-center gap-2 bg-white/10 text-medical-400 px-4 py-2 rounded-full mb-8 font-black uppercase tracking-widest text-[9px]">
+                                        <Ambulance className="w-4 h-4 animate-pulse" />
+                                        Rapid Response Fleet
+                                    </div>
+                                    <h2 className="text-4xl lg:text-7xl font-black uppercase tracking-tight leading-none mb-8">
+                                        Advanced <br /> <span className="text-medical-500">Ambulance</span> <br /> Network
+                                    </h2>
+                                    <p className="text-slate-400 text-lg font-medium mb-12 max-w-lg leading-relaxed">
+                                        Experience zero-latency emergency transport with our JCI-accredited mobile ICU fleet. 24/7 availability with real-time GPS tracking.
+                                    </p>
+                                    <div className="flex flex-wrap gap-6">
+                                        <Link to="/ambulance" className="bg-medical-600 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-medical-700 transition-all flex items-center gap-3 shadow-xl shadow-medical-500/20">
+                                            Access Hub <ArrowRight className="w-4 h-4" />
+                                        </Link>
+                                        <a href="tel:108" className="bg-white text-slate-900 px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all flex items-center gap-3">
+                                            Emergency: 108
+                                        </a>
+                                    </div>
+                                </div>
+                                <div className="lg:w-1/2 grid grid-cols-2 gap-4">
+                                    {[
+                                        { label: 'Avg. Response', val: '12m', icon: '⚡' },
+                                        { label: 'Active Fleet', val: '150+', icon: '🚐' },
+                                        { label: 'Critical Care', val: '24/7', icon: '🏥' },
+                                        { label: 'Live Tracking', val: 'GPS', icon: '📍' }
+                                    ].map((stat, i) => (
+                                        <div key={i} className="bg-white/5 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white/10 hover:bg-white/10 transition-colors">
+                                            <div className="text-3xl mb-4">{stat.icon}</div>
+                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
+                                            <p className="text-2xl font-black text-white">{stat.val}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 

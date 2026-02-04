@@ -9,7 +9,7 @@ const MegaFooter = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Top Header Section */}
-                <div className="grid lg:grid-cols-4 gap-12 mb-20">
+                <div className="grid lg:grid-cols-4 gap-12 mb-4">
                     <div className="lg:col-span-2">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="p-2 bg-medical-600 rounded-xl text-white">
