@@ -20,6 +20,7 @@ import Register from './pages/Register';
 import PortalLogin from './pages/PortalLogin';
 import SkinAI from './pages/SkinAI';
 import Ambulance from './pages/Ambulance';
+import ClinicalServiceDetail from './pages/ClinicalServiceDetail';
 import MegaFooter from './components/layout/MegaFooter';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
@@ -50,6 +51,7 @@ function App() {
             <Route path="/portal-login" element={<PortalLogin />} />
             <Route path="/skin-ai" element={<SkinAI />} />
             <Route path="/ambulance" element={<Ambulance />} />
+            <Route path="/clinical/:category/:service" element={<ClinicalServiceDetail />} />
           </Routes>
         </div>
         <MegaFooter />

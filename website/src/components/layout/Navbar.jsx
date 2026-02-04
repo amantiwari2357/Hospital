@@ -250,7 +250,7 @@ const Navbar = () => {
                                 {getSubLinks(activeMegaMenu).map((sub, i) => (
                                     <Link
                                         key={i}
-                                        to={`/disease/${activeMegaMenu.toLowerCase()}`}
+                                        to={`/clinical/${activeMegaMenu.toLowerCase()}/${sub.toLowerCase().replace(/\s+/g, '-')}`}
                                         className="group flex items-center gap-4 py-1.5 cursor-pointer"
                                     >
                                         <div className="w-2 h-2 rounded-full bg-slate-100 group-hover:bg-medical-500 group-hover:scale-150 transition-all" />
