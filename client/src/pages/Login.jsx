@@ -134,6 +134,21 @@ const Login = () => {
                                 </>
                             )}
                         </button>
+
+                        {/* Demo Login Helper */}
+                        <div className="pt-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setEmail('admin@gmail.com');
+                                    setPassword('admin123');
+                                }}
+                                className="w-full bg-gray-50 border border-gray-200 text-gray-600 py-2 rounded-lg text-xs font-medium hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Lock className="w-3 h-3" />
+                                <span>Quick Login (admin@gmail.com / admin123)</span>
+                            </button>
+                        </div>
                     </form>
 
                     {/* Footer */}

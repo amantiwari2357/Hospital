@@ -24,6 +24,20 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
+        // Static login for development purposes
+        if (email === 'admin@gmail.com' && password === 'admin123') {
+            const staticData = {
+                _id: 'static-id-123',
+                name: 'Admin User',
+                email: 'admin@gmail.com',
+                isAdmin: true,
+                token: 'static-jwt-token-for-dev'
+            };
+            localStorage.setItem('userInfo', JSON.stringify(staticData));
+            setUser(staticData);
+            return staticData;
+        }
+
         const config = {
             headers: {
                 'Content-Type': 'application/json',
