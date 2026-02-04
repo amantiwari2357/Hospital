@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import {
@@ -18,6 +18,8 @@ import { motion } from 'framer-motion';
 
 const ClinicalServiceDetail = () => {
     const { category, service } = useParams();
+    const [isBooking, setIsBooking] = useState(false);
+    const [booked, setBooked] = useState(false);
 
     // Scroll to top on mount
     useEffect(() => {
@@ -87,6 +89,12 @@ const ClinicalServiceDetail = () => {
                                 </div>
                                 <span className="text-white font-black uppercase tracking-widest text-[10px]">RAPID DISPATCH AVAILABLE</span>
                             </div>
+                            <Link
+                                to="/research"
+                                className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-md px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] text-white border border-white/10 transition-all no-underline"
+                            >
+                                View Protocols <ArrowRight className="w-4 h-4" />
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
@@ -188,8 +196,25 @@ const ClinicalServiceDetail = () => {
                                     <p className="text-[9px] font-black uppercase text-medical-600 tracking-widest mb-1 italic">Clinical Interest</p>
                                     <p className="text-sm font-black text-slate-700 uppercase italic tracking-tight">{serviceName}</p>
                                 </div>
-                                <button type="button" className="w-full bg-slate-900 text-white py-6 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-medical-600 transition-all shadow-xl shadow-slate-200">
-                                    Request Appointment
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsBooking(true);
+                                        setTimeout(() => {
+                                            setIsBooking(false);
+                                            setBooked(true);
+                                            setTimeout(() => setBooked(false), 3000);
+                                        }, 1500);
+                                    }}
+                                    disabled={isBooking || booked}
+                                    className={`w-full py-6 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl flex items-center justify-center gap-3 ${booked ? 'bg-green-500 text-white shadow-green-100' : 'bg-slate-900 text-white hover:bg-medical-600 shadow-slate-200'}`}
+                                >
+                                    {isBooking ? (
+                                        <Activity className="w-4 h-4 animate-spin" />
+                                    ) : booked ? (
+                                        <CheckCircle2 className="w-4 h-4" />
+                                    ) : null}
+                                    {isBooking ? 'Processing...' : booked ? 'Request Sent' : 'Request Appointment'}
                                 </button>
                                 <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest italic">
                                     Response within 12 minutes

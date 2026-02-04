@@ -241,9 +241,12 @@ const Navbar = () => {
                                 <p className="text-slate-500 font-medium italic text-[11px] mb-6 leading-relaxed">
                                     Specialized clinical pathways.
                                 </p>
-                                <button className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[9px] hover:bg-medical-600 transition-all">
+                                <Link
+                                    to="/research"
+                                    className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[9px] hover:bg-medical-600 transition-all no-underline"
+                                >
                                     Protocols <ArrowRight className="w-4 h-4" />
-                                </button>
+                                </Link>
                             </div>
 
                             <div className="w-3/4 grid grid-cols-3 gap-x-8 gap-y-3 border-l border-slate-100 pl-2">

@@ -437,8 +437,7 @@ const Ambulance = () => {
                                                     }, 1500);
                                                 }}
                                                 disabled={isSharing || shared}
-                                                className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 ${shared ? 'bg-green-500 text-white' : 'bg-slate-900 text-white hover:bg-medical-600'
-                                                    }`}
+                                                className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 ${shared ? 'bg-green-500 text-white' : 'bg-slate-900 text-white hover:bg-medical-600'}`}
                                             >
                                                 {isSharing ? (
                                                     <ActivityIcon className="w-4 h-4 animate-spin" />
@@ -477,21 +476,81 @@ const Ambulance = () => {
                     )}
 
                     {/* Quick Booking Info */}
-                    <div className="bg-slate-900 rounded-[4rem] p-12 lg:p-20 text-white relative overflow-hidden italic text-center lg:text-left">
-                        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-medical-600/20 blur-[150px] -mr-64 -mt-64" />
-                        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
-                            <div className="max-w-2xl">
-                                <h3 className="text-4xl lg:text-7xl font-black uppercase tracking-tighter italic mb-8 leading-none">Instant <span className="text-medical-400">SOS</span> Dispatch</h3>
-                                <p className="text-slate-400 text-lg font-medium italic mb-10">Our AI dispatch system instantly identifies the closest unit to your location, significantly reducing response time compared to traditional services.</p>
-                                <div className="flex flex-wrap justify-center lg:justify-start gap-8 opacity-60 italic text-[10px] font-black uppercase tracking-[0.3em]">
-                                    <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> GPS Tracked</span>
-                                    <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> ICU Equipped</span>
-                                    <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Certified Crew</span>
+                    {/* Enhanced SOS Dispatch Section */}
+                    <div className="relative group mt-20 lg:mt-32">
+                        {/* High-tech Background Bloom */}
+                        <div className="absolute -inset-4 bg-gradient-to-r from-medical-600/20 via-red-500/10 to-medical-600/20 blur-[100px] opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
+
+                        <div className="bg-slate-900 rounded-[4rem] lg:rounded-[5rem] p-12 lg:p-24 text-white relative overflow-hidden border border-white/5 italic shadow-2xl">
+                            {/* Animated Background Elements */}
+                            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-medical-600/30 blur-[180px] -mr-96 -mt-96 animate-pulse" />
+                                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-red-600/10 blur-[120px] -ml-48 -mb-48" />
+                                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <pattern id="sosGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                            <circle cx="2" cy="2" r="1" fill="rgba(255,255,255,0.05)" />
+                                        </pattern>
+                                    </defs>
+                                    <rect width="100%" height="100%" fill="url(#sosGrid)" />
+                                </svg>
+                            </div>
+
+                            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-24">
+                                <div className="max-w-3xl text-center lg:text-left">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-xl px-5 py-2 rounded-full border border-white/10 mb-8 font-black uppercase tracking-[0.3em] text-[10px] text-medical-400"
+                                    >
+                                        <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                                        Critical Response Protocol Active
+                                    </motion.div>
+
+                                    <h3 className="text-5xl lg:text-[8rem] font-black uppercase tracking-tighter italic mb-10 leading-[0.85] text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-white/40">
+                                        Instant <span className="text-medical-500 drop-shadow-[0_0_30px_rgba(14,165,233,0.4)]">SOS</span> <br />
+                                        <span className="italic">Dispatch</span>
+                                    </h3>
+
+                                    <p className="text-slate-400 text-lg lg:text-2xl font-medium italic mb-12 leading-relaxed max-w-2xl">
+                                        Our AI-driven neural network instantly targets the <span className="text-white">closest medical unit</span> to your geodata, bypassing traditional dispatch delays for life-saving efficiency.
+                                    </p>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 opacity-80">
+                                        {[
+                                            { label: 'GPS Precision', icon: MapPin },
+                                            { label: 'ICU Fleet', icon: ShieldCheck },
+                                            { label: '24/7 Crew', icon: Clock }
+                                        ].map((item, i) => (
+                                            <div key={i} className="flex items-center gap-4 bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+                                                <div className="w-10 h-10 rounded-xl bg-medical-500/20 flex items-center justify-center text-medical-400">
+                                                    <item.icon className="w-5 h-5" />
+                                                </div>
+                                                <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Cinematic Pulse Button */}
+                                <div className="relative group/btn">
+                                    {/* Multi-layered animations */}
+                                    <div className="absolute inset-0 bg-medical-500 rounded-full blur-[40px] opacity-30 group-hover/btn:opacity-60 transition-opacity animate-pulse" />
+                                    <div className="absolute -inset-10 bg-medical-400/10 rounded-full blur-[60px] animate-ping" />
+
+                                    <a
+                                        href="tel:108"
+                                        className="relative bg-medical-500 text-white rounded-full w-60 h-60 lg:w-80 lg:h-80 font-black uppercase tracking-widest text-2xl lg:text-4xl hover:bg-medical-600 transition-all shadow-[0_0_60px_rgba(14,165,233,0.4)] flex flex-col items-center justify-center group no-underline active:scale-90 border-8 border-white/10 ring-1 ring-white/20"
+                                    >
+                                        <Phone className="w-16 h-16 lg:w-24 lg:h-24 mb-6 group-hover:rotate-[15deg] transition-transform duration-500 drop-shadow-2xl" />
+                                        <span className="tracking-[0.2em] relative">
+                                            CALL 108
+                                            <div className="absolute -bottom-2 lg:-bottom-4 left-1/2 -translate-x-1/2 w-12 lg:w-20 h-1.5 bg-white/40 rounded-full" />
+                                        </span>
+                                    </a>
                                 </div>
                             </div>
-                            <button className="bg-medical-500 text-white rounded-full px-12 py-12 font-black uppercase tracking-widest text-xl hover:bg-medical-600 transition-all shadow-2xl shadow-medical-500/30 flex flex-col items-center group">
-                                <Phone className="w-12 h-12 mb-4 group-hover:scale-110 transition-transform" /> CALL 108
-                            </button>
                         </div>
                     </div>
                 </div>
