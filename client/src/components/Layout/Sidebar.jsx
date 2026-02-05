@@ -14,7 +14,11 @@ import {
     Clock,
     User,
     Clipboard,
-    Pill
+    Pill,
+    Globe,
+    MessageSquare,
+    Navigation,
+    Sparkles
 } from 'lucide-react';
 
 const Sidebar = ({ dark = false }) => {
@@ -42,6 +46,11 @@ const Sidebar = ({ dark = false }) => {
         { icon: CreditCard, label: 'Payment Logs', path: '/payments' },
         { icon: Activity, label: 'Lab Reports', path: '/lab-reports' },
         { icon: Clock, label: 'Queue Status', path: '/queue' },
+        { icon: Globe, label: 'Website Management', path: '/website-cms' },
+        { icon: Navigation, label: 'Navigation Manager', path: '/navbar-manager' },
+        { icon: Users, label: 'Patient Manager', path: '/patient-manager' },
+        { icon: Sparkles, label: 'AI Skin Diagnosis', path: '/skin-ai-manager' },
+        { icon: MessageSquare, label: 'Enquiry Center', path: '/enquiries' },
         { icon: User, label: 'My Profile', path: '/profile' },
     ];
 
@@ -62,8 +71,8 @@ const Sidebar = ({ dark = false }) => {
                 </div>
             </div>
 
-            {/* Menu Items */}
-            <nav className="flex-1 p-4 space-y-1">
+            {/* Menu Items - Scrollable */}
+            <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300">
                 {menuItems.map((item) => {
                     const Icon = item.icon;
                     const active = isActive(item.path);

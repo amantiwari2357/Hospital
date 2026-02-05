@@ -19,9 +19,16 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [activeMegaMenu, setActiveMegaMenu] = useState(null);
     const [isHoveringMenu, setIsHoveringMenu] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const location = useLocation();
     const tabsRef = useRef(null);
+
+    // Check authentication status
+    useEffect(() => {
+        const token = localStorage.getItem('patientToken');
+        setIsAuthenticated(!!token);
+    }, [location]);
 
     const scroll = (direction) => {
         if (tabsRef.current) {
@@ -139,9 +146,15 @@ const Navbar = () => {
                             )}
                         </button>
 
-                        <Link to="/profile" className="p-3.5 bg-slate-50 text-slate-600 rounded-2xl hover:bg-medical-50 hover:text-medical-600 transition-all group">
-                            <User className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        </Link>
+                        {isAuthenticated ? (
+                            <Link to="/profile" className="p-3.5 bg-slate-50 text-slate-600 rounded-2xl hover:bg-medical-50 hover:text-medical-600 transition-all group">
+                                <User className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                            </Link>
+                        ) : (
+                            <Link to="/portal-login" className="px-6 py-3 bg-medical-600 text-white rounded-2xl hover:bg-medical-700 transition-all font-bold text-sm uppercase tracking-wider">
+                                Login
+                            </Link>
+                        )}
 
                         <Link to="/ambulance" className="p-3.5 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-all group flex sm:hidden items-center justify-center border border-red-100">
                             <Ambulance className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -179,7 +192,7 @@ const Navbar = () => {
                                 className={`whitespace-nowrap px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all italic border border-transparent ${activeMegaMenu === tab.name || location.pathname === tab.href
                                     ? 'bg-medical-600 text-white shadow-xl shadow-medical-100'
                                     : 'text-slate-500 hover:text-medical-600 hover:bg-medical-50 hover:border-medical-100'
-                                    }`}
+                                    } `}
                             >
                                 {tab.name}
                             </Link>
@@ -201,10 +214,10 @@ const Navbar = () => {
                             key={link.name}
                             to={link.href}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all group ${location.pathname === link.href ? 'text-medical-600' : 'text-slate-400 hover:text-slate-900'
-                                }`}
+                                } `}
                         >
                             <link.icon className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${location.pathname === link.href ? 'text-medical-600' : 'text-slate-300 group-hover:text-medical-500'
-                                }`} />
+                                } `} />
                             <span className="text-[9px] font-black uppercase tracking-[0.15em] italic">
                                 {link.name}
                             </span>

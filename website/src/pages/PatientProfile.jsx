@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import {
     User,
@@ -12,22 +12,75 @@ import {
     MapPin,
     Phone,
     Mail,
-    CreditCard
+    CreditCard,
+    LogOut,
+    Loader
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const PatientProfile = () => {
-    // Mock user data
-    const user = {
-        name: 'Mahan Kumar',
-        id: 'P-992834',
-        email: 'mahan@example.com',
-        phone: '+91 98765 43210',
-        bloodGroup: 'O+',
-        age: 28,
-        weight: '72 kg',
-        height: '178 cm'
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        fetchProfile();
+    }, []);
+
+    const fetchProfile = async () => {
+        try {
+            const token = localStorage.getItem('patientToken');
+
+            if (!token) {
+                navigate('/portal-login');
+                return;
+            }
+
+            const response = await fetch('http://localhost:5000/api/patient-portal/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setUser(data.data);
+            } else {
+                setError('Failed to load profile');
+                if (response.status === 401) {
+                    localStorage.removeItem('patientToken');
+                    localStorage.removeItem('patientData');
+                    navigate('/portal-login');
+                }
+            }
+        } catch (err) {
+            setError('Server error');
+            console.error('Fetch profile error:', err);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const handleLogout = () => {
+        localStorage.removeItem('patientToken');
+        localStorage.removeItem('patientData');
+        navigate('/portal-login');
+    };
+
+    if (loading) {
+        return (
+            <div className="bg-slate-50 min-h-screen flex items-center justify-center">
+                <Loader className="w-8 h-8 text-medical-600 animate-spin" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return null;
+    }
 
     const recentOrders = [
         { id: 'ORD-5521', item: 'Paracetamol 500mg', status: 'Delivered', date: 'Feb 02, 2024', amount: '₹65' },
@@ -51,15 +104,22 @@ const PatientProfile = () => {
                         <div className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-xl shadow-slate-200/50">
                             <div className="flex flex-col items-center text-center">
                                 <div className="w-32 h-32 bg-medical-500 rounded-[2.5rem] flex items-center justify-center text-white text-5xl font-black mb-6 shadow-2xl shadow-medical-200">
-                                    MK
+                                    {user.name.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <h1 className="text-3xl font-black text-slate-900 mb-1">{user.name}</h1>
-                                <p className="text-medical-600 font-bold text-sm uppercase tracking-widest mb-8 italic">Patient #{user.id}</p>
+                                <p className="text-medical-600 font-bold text-sm uppercase tracking-widest mb-4 italic">Patient #{user.patientId}</p>
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl font-bold text-xs hover:bg-red-100 transition-all mb-8"
+                                >
+                                    <LogOut className="w-4 h-4" /> Logout
+                                </button>
 
                                 <div className="grid grid-cols-2 gap-4 w-full">
                                     <div className="bg-slate-50 p-4 rounded-2xl text-center border border-slate-100 italic">
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Blood Group</p>
-                                        <p className="text-xl font-black text-slate-900">{user.bloodGroup}</p>
+                                        <p className="text-xl font-black text-slate-900">{user.bloodGroup || 'N/A'}</p>
                                     </div>
                                     <div className="bg-slate-50 p-4 rounded-2xl text-center border border-slate-100 italic">
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Age</p>

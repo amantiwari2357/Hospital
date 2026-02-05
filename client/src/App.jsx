@@ -24,6 +24,11 @@ import StaffDirectory from './pages/StaffDirectory';
 import SystemSettings from './pages/SystemSettings';
 import RecordVitals from './pages/RecordVitals';
 import ClinicalOverview from './pages/ClinicalOverview';
+import WebsiteCMS from './pages/WebsiteCMS';
+import Enquiries from './pages/Enquiries';
+import NavbarManager from './pages/NavbarManager';
+import PatientManager from './pages/PatientManager';
+import SkinAIDiagnosisManager from './pages/SkinAIDiagnosisManager';
 
 function App() {
   return (
@@ -54,6 +59,11 @@ function App() {
           <Route path="/staff" element={<StaffDirectory />} />
           <Route path="/settings" element={<SystemSettings />} />
           <Route path="/record-vitals" element={<RecordVitals />} />
+          <Route path="/website-cms" element={<WebsiteCMS />} />
+          <Route path="/enquiries" element={<Enquiries />} />
+          <Route path="/navbar-manager" element={<NavbarManager />} />
+          <Route path="/patient-manager" element={<PatientManager />} />
+          <Route path="/skin-ai-manager" element={<SkinAIDiagnosisManager />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>

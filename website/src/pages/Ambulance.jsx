@@ -475,7 +475,7 @@ const Ambulance = () => {
                         </motion.div>
                     )}
 
-                    {/* Quick Booking Info */}
+
                     {/* Enhanced SOS Dispatch Section */}
                     <div className="relative group mt-20 lg:mt-32">
                         {/* High-tech Background Bloom */}
