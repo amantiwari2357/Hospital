@@ -48,7 +48,7 @@ const Sidebar = ({ dark = false }) => {
         { icon: Clock, label: 'Queue Status', path: '/queue' },
         { icon: Globe, label: 'Website Management', path: '/website-cms' },
         { icon: Navigation, label: 'Navigation Manager', path: '/navbar-manager' },
-        { icon: Users, label: 'Patient Manager', path: '/patient-manager' },
+        // { icon: Users, label: 'Patient Manager', path: '/patient-manager' },
         { icon: Sparkles, label: 'AI Skin Diagnosis', path: '/skin-ai-manager' },
         { icon: MessageSquare, label: 'Enquiry Center', path: '/enquiries' },
         { icon: User, label: 'My Profile', path: '/profile' },
