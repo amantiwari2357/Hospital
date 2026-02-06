@@ -27,6 +27,43 @@ const BookAppointment = () => {
     const handleNext = () => setStep(prev => prev + 1);
     const handleBack = () => setStep(prev => prev - 1);
 
+    const handleSubmit = async () => {
+        try {
+            const token = localStorage.getItem('patientToken');
+            const patientData = JSON.parse(localStorage.getItem('patientData'));
+
+            if (!token || !patientData) {
+                console.error("User not logged in");
+                // For now allow proceed or handle error
+            }
+
+            const response = await fetch('http://localhost:5000/api/appointments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    patientName: formData.patientName,
+                    doctor: formData.doctor,
+                    date: formData.date,
+                    time: formData.time,
+                    department: formData.speciality,
+                    phone: formData.phone,
+                    patientPortalId: patientData?.id
+                })
+            });
+
+            if (response.ok) {
+                setStep(4);
+            } else {
+                console.error("Failed to book appointment");
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     return (
         <div className="bg-slate-50 min-h-screen italic">
             <Navbar />
@@ -163,7 +200,7 @@ const BookAppointment = () => {
                                     />
                                 </div>
                                 <button
-                                    onClick={() => setStep(4)}
+                                    onClick={handleSubmit}
                                     disabled={!formData.patientName || !formData.phone}
                                     className="w-full bg-medical-600 text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-medical-700 transition-all shadow-xl shadow-medical-100"
                                 >

@@ -18,25 +18,23 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const userInfo = localStorage.getItem('userInfo');
         if (userInfo) {
-            setUser(JSON.parse(userInfo));
+            const parsedUser = JSON.parse(userInfo);
+            // Critical Fix: Clear old static tokens that cause server crashes
+            if (parsedUser.token === 'static-jwt-token-for-dev') {
+                console.warn("Found legacy static token. Clearing to force re-login.");
+                localStorage.removeItem('userInfo');
+                setUser(null);
+            } else {
+                setUser(parsedUser);
+            }
         }
         setLoading(false);
     }, []);
 
     const login = async (email, password) => {
-        // Static login for development purposes
-        if (email === 'admin@gmail.com' && password === 'admin123') {
-            const staticData = {
-                _id: 'static-id-123',
-                name: 'Admin User',
-                email: 'admin@gmail.com',
-                isAdmin: true,
-                token: 'static-jwt-token-for-dev'
-            };
-            localStorage.setItem('userInfo', JSON.stringify(staticData));
-            setUser(staticData);
-            return staticData;
-        }
+        // Removed static login for development purposes
+        // Real authentication below
+
 
         const config = {
             headers: {

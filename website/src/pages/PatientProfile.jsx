@@ -25,44 +25,66 @@ const PatientProfile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    const [orders, setOrders] = useState([]);
+    const [appointments, setAppointments] = useState([]);
+
     useEffect(() => {
-        fetchProfile();
-    }, []);
-
-    const fetchProfile = async () => {
-        try {
-            const token = localStorage.getItem('patientToken');
-
-            if (!token) {
-                navigate('/portal-login');
-                return;
-            }
-
-            const response = await fetch('http://localhost:5000/api/patient-portal/profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                setUser(data.data);
-            } else {
-                setError('Failed to load profile');
-                if (response.status === 401) {
-                    localStorage.removeItem('patientToken');
-                    localStorage.removeItem('patientData');
-                    navigate('/portal-login');
-                }
-            }
-        } catch (err) {
-            setError('Server error');
-            console.error('Fetch profile error:', err);
-        } finally {
-            setLoading(false);
+        const token = localStorage.getItem('patientToken');
+        if (!token) {
+            navigate('/portal-login');
+            return;
         }
-    };
+
+        const fetchData = async () => {
+            try {
+                // Fetch Profile
+                const profileRes = await fetch('http://localhost:5000/api/patient-portal/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const profileData = await profileRes.json();
+
+                if (profileData.success) {
+                    console.log("Profile Data:", profileData.data);
+                    setUser(profileData.data);
+
+                    // Fetch Appointments
+                    const fetchUrl = `http://localhost:5000/api/appointments?patientPortalId=${profileData.data._id}`;
+                    console.log("Fetching appointments from:", fetchUrl);
+
+                    const apptRes = await fetch(fetchUrl, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (apptRes.ok) {
+                        const apptData = await apptRes.json();
+                        setAppointments(Array.isArray(apptData) ? apptData : []);
+                    }
+
+                    // Fetch Orders
+                    const orderRes = await fetch('http://localhost:5000/api/orders/myorders', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (orderRes.ok) {
+                        const orderData = await orderRes.json();
+                        setOrders(Array.isArray(orderData) ? orderData : []);
+                    }
+
+                } else {
+                    setError('Failed to load profile');
+                    if (profileRes.status === 401) {
+                        handleLogout();
+                    }
+                }
+
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('patientToken');
@@ -82,10 +104,7 @@ const PatientProfile = () => {
         return null;
     }
 
-    const recentOrders = [
-        { id: 'ORD-5521', item: 'Paracetamol 500mg', status: 'Delivered', date: 'Feb 02, 2024', amount: '₹65' },
-        { id: 'ORD-5582', item: 'Amoxicillin 250mg', status: 'In Transit', date: 'Feb 04, 2024', amount: '₹170' },
-    ];
+
 
     const consultations = [
         { id: 'CON-102', doctor: 'Dr. Sarah Wilson', speciality: 'Cardiology', date: 'Jan 28, 2024', time: '10:30 AM' },
@@ -180,9 +199,9 @@ const PatientProfile = () => {
                         {/* Summary Cards */}
                         <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-6">
                             {[
-                                { title: 'Appointments', value: '12', icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
-                                { title: 'Prescriptions', value: '08', icon: FileText, color: 'text-purple-600', bg: 'bg-purple-50' },
-                                { title: 'Active Orders', value: '02', icon: Package, color: 'text-medical-600', bg: 'bg-medical-50' },
+                                { title: 'Appointments', value: appointments.length.toString().padStart(2, '0'), icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
+                                { title: 'Prescriptions', value: '00', icon: FileText, color: 'text-purple-600', bg: 'bg-purple-50' },
+                                { title: 'Active Orders', value: orders.length.toString().padStart(2, '0'), icon: Package, color: 'text-medical-600', bg: 'bg-medical-50' },
                             ].map((card) => (
                                 <div key={card.title} className="bg-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 flex flex-col items-center text-center shadow-lg shadow-slate-200/50">
                                     <div className={`w-10 h-10 md:w-14 md:h-14 ${card.bg} ${card.color} rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-4`}>
@@ -201,28 +220,36 @@ const PatientProfile = () => {
                                 <button className="text-[10px] font-black text-medical-600 uppercase tracking-widest hover:underline italic">View History</button>
                             </div>
                             <div className="space-y-4 italic">
-                                {recentOrders.map((order) => (
-                                    <div key={order.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 gap-4 group hover:border-medical-200 transition-colors italic">
-                                        <div className="flex items-center gap-4 italic">
-                                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-medical-500 group-hover:text-white transition-colors italic">
-                                                <Package className="w-5 h-5" />
+                                {orders.length > 0 ? (
+                                    orders.map((order) => (
+                                        <div key={order._id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 gap-4 group hover:border-medical-200 transition-colors italic">
+                                            <div className="flex items-center gap-4 italic">
+                                                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-medical-500 group-hover:text-white transition-colors italic">
+                                                    <Package className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-slate-800 italic uppercase">
+                                                        {order.orderItems.map(i => i.name).join(', ')}
+                                                    </p>
+                                                    <p className="text-[10px] text-slate-400 font-bold italic">Order ID: #{order._id.slice(-6)} • {new Date(order.createdAt).toLocaleDateString()}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-black text-slate-800 italic uppercase">{order.item}</p>
-                                                <p className="text-[10px] text-slate-400 font-bold italic">Order ID: {order.id} • {order.date}</p>
+                                            <div className="flex items-center justify-between md:justify-end gap-12 italic">
+                                                <div className="text-right italic">
+                                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic leading-none mb-1">Total</p>
+                                                    <p className="text-lg font-black text-slate-900 italic">₹{order.totalAmount}</p>
+                                                </div>
+                                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest italic ${order.status === 'Delivered' ? 'bg-green-100 text-green-600' : 'bg-medical-100 text-medical-600'}`}>
+                                                    {order.status}
+                                                </span>
                                             </div>
                                         </div>
-                                        <div className="flex items-center justify-between md:justify-end gap-12 italic">
-                                            <div className="text-right italic">
-                                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic leading-none mb-1">Total</p>
-                                                <p className="text-lg font-black text-slate-900 italic">{order.amount}</p>
-                                            </div>
-                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest italic ${order.status === 'Delivered' ? 'bg-green-100 text-green-600' : 'bg-medical-100 text-medical-600'}`}>
-                                                {order.status}
-                                            </span>
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-10 text-slate-400">
+                                        No medicine orders found.
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </div>
 
@@ -230,28 +257,32 @@ const PatientProfile = () => {
                         <div className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-xl shadow-slate-200/50 italic">
                             <div className="flex justify-between items-center mb-10 italic">
                                 <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight italic">Upcoming Consultations</h3>
-                                <button className="text-[10px] font-black text-medical-600 uppercase tracking-widest hover:underline italic">Schedule New</button>
+                                <button onClick={() => navigate('/book-appointment')} className="text-[10px] font-black text-medical-600 uppercase tracking-widest hover:underline italic">Schedule New</button>
                             </div>
                             <div className="grid md:grid-cols-2 gap-6 italic">
-                                {consultations.map((con) => (
-                                    <div key={con.id} className="p-8 bg-slate-50 rounded-3xl border border-slate-100 hover:border-blue-200 transition-colors group italic">
-                                        <div className="flex justify-between items-start mb-6 italic">
-                                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-blue-600 italic">
-                                                <Calendar className="w-6 h-6" />
+                                {appointments.length > 0 ? (
+                                    appointments.map((appt) => (
+                                        <div key={appt._id} className="p-8 bg-slate-50 rounded-3xl border border-slate-100 hover:border-blue-200 transition-colors group italic">
+                                            <div className="flex justify-between items-start mb-6 italic">
+                                                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-blue-600 italic">
+                                                    <Calendar className="w-6 h-6" />
+                                                </div>
+                                                <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic">{appt.status || "Scheduled"}</span>
                                             </div>
-                                            {con.status && (
-                                                <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic">Upcoming</span>
-                                            )}
+                                            <h4 className="text-lg font-black text-slate-900 italic uppercase mb-1">{appt.doctor}</h4>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-6 italic">{appt.department}</p>
+                                            <div className="flex items-center gap-4 pt-6 border-t border-slate-200/50 italic">
+                                                <p className="text-sm font-black text-slate-700 italic">{new Date(appt.date).toLocaleDateString()}</p>
+                                                <span className="text-slate-300">•</span>
+                                                <p className="text-sm font-black text-slate-700 italic">{appt.time}</p>
+                                            </div>
                                         </div>
-                                        <h4 className="text-lg font-black text-slate-900 italic uppercase mb-1">{con.doctor}</h4>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-6 italic">{con.speciality}</p>
-                                        <div className="flex items-center gap-4 pt-6 border-t border-slate-200/50 italic">
-                                            <p className="text-sm font-black text-slate-700 italic">{con.date}</p>
-                                            <span className="text-slate-300">•</span>
-                                            <p className="text-sm font-black text-slate-700 italic">{con.time}</p>
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-2 text-center py-10 text-slate-400">
+                                        No upcoming consultations found.
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </div>
 

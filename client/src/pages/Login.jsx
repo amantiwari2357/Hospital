@@ -140,13 +140,13 @@ const Login = () => {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    setEmail('admin@gmail.com');
-                                    setPassword('admin123');
+                                    setEmail('er.aman.aktu@gmail.com');
+                                    setPassword('password123');
                                 }}
                                 className="w-full bg-gray-50 border border-gray-200 text-gray-600 py-2 rounded-lg text-xs font-medium hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
                             >
                                 <Lock className="w-3 h-3" />
-                                <span>Quick Login (admin@gmail.com / admin123)</span>
+                                <span>Quick Login (er.aman.aktu@gmail.com)</span>
                             </button>
                         </div>
                     </form>
@@ -169,8 +169,8 @@ const Login = () => {
                         <a href="#" className="hover:text-gray-700">Help Center</a>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

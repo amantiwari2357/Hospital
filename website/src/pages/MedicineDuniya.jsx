@@ -1,32 +1,50 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import MedicineCard from '../components/medicines/MedicineCard';
-import { medicinesData } from '../utils/medicinesData';
-import { Search, Filter, ShoppingBag, ArrowRight, Zap, Sparkles } from 'lucide-react';
+import { Search, Filter, ShoppingBag, ArrowRight, Zap, Sparkles, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MedicineDuniya = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [medicines, setMedicines] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const categories = ['All', ...new Set(medicinesData.map(m => m.category))];
+    useEffect(() => {
+        const fetchMedicines = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/medicines');
+                const data = await response.json();
+                setMedicines(data);
+            } catch (error) {
+                console.error('Error fetching medicines:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchMedicines();
+    }, []);
+
+    const categories = useMemo(() => {
+        return ['All', ...new Set(medicines.map(m => m.category))];
+    }, [medicines]);
 
     const filteredMedicines = useMemo(() => {
-        return medicinesData.filter(m => {
+        return medicines.filter(m => {
             const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 m.brand.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesCategory = selectedCategory === 'All' || m.category === selectedCategory;
             return matchesSearch && matchesCategory;
         });
-    }, [searchQuery, selectedCategory]);
+    }, [searchQuery, selectedCategory, medicines]);
 
     const suggestions = useMemo(() => {
         if (!searchQuery) return [];
-        return medicinesData
+        return medicines
             .filter(m => m.name.toLowerCase().startsWith(searchQuery.toLowerCase()))
             .slice(0, 5);
-    }, [searchQuery]);
+    }, [searchQuery, medicines]);
 
     return (
         <div className="bg-slate-50 min-h-screen pb-24">
@@ -83,7 +101,7 @@ const MedicineDuniya = () => {
                                     >
                                         {suggestions.map((s) => (
                                             <button
-                                                key={s.id}
+                                                key={s._id || s.id}
                                                 className="w-full px-8 py-4 text-left hover:bg-slate-50 flex items-center gap-4 group transition-colors"
                                                 onClick={() => {
                                                     setSearchQuery(s.name);
@@ -149,23 +167,29 @@ const MedicineDuniya = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {filteredMedicines.slice(0, 20).map((medicine) => (
-                        <motion.div
-                            key={medicine.id}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                        >
-                            <MedicineCard medicine={medicine} />
-                        </motion.div>
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader className="w-12 h-12 text-medical-600 animate-spin" />
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {filteredMedicines.slice(0, 24).map((medicine) => (
+                            <motion.div
+                                key={medicine._id || medicine.id}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                            >
+                                <MedicineCard medicine={medicine} />
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
 
-                {filteredMedicines.length > 20 && (
+                {filteredMedicines.length > 24 && (
                     <div className="mt-20 text-center">
                         <button className="bg-white border-2 border-slate-900 text-slate-900 px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-slate-900 hover:text-white transition-all shadow-xl active:scale-95">
-                            Load All 500+ Medicines
+                            Load All {filteredMedicines.length}+ Medicines
                         </button>
                     </div>
                 )}

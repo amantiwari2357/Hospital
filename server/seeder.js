@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const users = require('./data/users');
 const patients = require('./data/patients');
+const medicines = require('./data/medicines');
 const User = require('./models/User');
 const Patient = require('./models/Patient');
 const Appointment = require('./models/Appointment');
+const Medicine = require('./models/Medicine');
 const connectDB = require('./config/db');
 
 dotenv.config();
@@ -16,8 +17,14 @@ const importData = async () => {
         await Appointment.deleteMany();
         await Patient.deleteMany();
         await User.deleteMany();
+        await Medicine.deleteMany();
 
-        const createdUsers = await User.insertMany(users);
+        // Use loop to trigger pre-save middleware for password hashing
+        const createdUsers = [];
+        for (const user of users) {
+            const newUser = await User.create(user);
+            createdUsers.push(newUser);
+        }
         const doctor = createdUsers.find(u => u.role === 'doctor');
 
         // Assign doctor to patients
@@ -26,6 +33,9 @@ const importData = async () => {
         });
 
         await Patient.insertMany(samplePatients);
+
+        // Seed Medicines
+        await Medicine.insertMany(medicines);
 
         console.log('Data Imported!');
         process.exit();
@@ -40,6 +50,7 @@ const destroyData = async () => {
         await Appointment.deleteMany();
         await Patient.deleteMany();
         await User.deleteMany();
+        await Medicine.deleteMany();
 
         console.log('Data Destroyed!');
         process.exit();

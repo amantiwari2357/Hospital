@@ -18,6 +18,7 @@ import ResearchPapers from './pages/ResearchPapers';
 import Resources from './pages/Resources';
 import Register from './pages/Register';
 import PortalLogin from './pages/PortalLogin';
+import Checkout from './pages/Checkout';
 import SkinAI from './pages/SkinAI';
 import Ambulance from './pages/Ambulance';
 import ClinicalServiceDetail from './pages/ClinicalServiceDetail';
@@ -49,6 +50,7 @@ function App() {
             <Route path="/resources" element={<Resources />} />
             <Route path="/register" element={<Register />} />
             <Route path="/portal-login" element={<PortalLogin />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/skin-ai" element={<SkinAI />} />
             <Route path="/ambulance" element={<Ambulance />} />
             <Route path="/clinical/:category/:service" element={<ClinicalServiceDetail />} />

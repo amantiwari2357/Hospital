@@ -24,6 +24,13 @@ const Dashboard = () => {
         const fetchStats = async () => {
             try {
                 const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+
+                if (!userInfo || !userInfo.token) {
+                    console.log("No valid token found, skipping stats fetch.");
+                    setLoading(false);
+                    return;
+                }
+
                 const config = {
                     headers: {
                         Authorization: `Bearer ${userInfo.token}`,
@@ -215,8 +222,8 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${doctor.color === 'green' ? 'bg-green-100 text-green-700' :
-                                            doctor.color === 'red' ? 'bg-red-100 text-red-700' :
-                                                'bg-gray-100 text-gray-700'
+                                        doctor.color === 'red' ? 'bg-red-100 text-red-700' :
+                                            'bg-gray-100 text-gray-700'
                                         }`}>
                                         {doctor.status}
                                     </span>
@@ -279,8 +286,8 @@ const Dashboard = () => {
                                 <div key={index} className="flex items-center justify-between">
                                     <span className="text-sm text-gray-700">{doctor.name}</span>
                                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${doctor.color === 'green' ? 'bg-green-100 text-green-700' :
-                                            doctor.color === 'red' ? 'bg-red-100 text-red-700' :
-                                                'bg-gray-100 text-gray-700'
+                                        doctor.color === 'red' ? 'bg-red-100 text-red-700' :
+                                            'bg-gray-100 text-gray-700'
                                         }`}>
                                         {doctor.status}
                                     </span>

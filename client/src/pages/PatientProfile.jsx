@@ -10,15 +10,8 @@ import {
     Activity,
     Phone,
     Mail,
-    MapPin,
     Heart,
-    Pill,
-    Stethoscope,
-    Clock,
-    TrendingUp,
-    AlertCircle,
     Edit3,
-    Eye,
     Plus,
     Download,
     Send,
@@ -28,8 +21,7 @@ import {
     List,
     Loader,
     X,
-    Save,
-    Check
+    Save
 } from 'lucide-react';
 
 const PatientProfile = () => {
@@ -38,6 +30,7 @@ const PatientProfile = () => {
     const [activeTab, setActiveTab] = useState('overview');
     const [viewMode, setViewMode] = useState('table'); // 'table' | 'cards'
     const [patients, setPatients] = useState([]);
+    const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -48,7 +41,33 @@ const PatientProfile = () => {
 
     useEffect(() => {
         fetchPatients();
+        fetchAppointments();
     }, []);
+
+    const fetchAppointments = async () => {
+        try {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+
+            if (!userInfo || !userInfo.token) {
+                console.error("No user token found.");
+                // Optionally setError or handle logout
+                return;
+            }
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${userInfo.token}`,
+                },
+            };
+            const response = await fetch('http://localhost:5000/api/appointments', config);
+            const data = await response.json();
+            if (Array.isArray(data)) {
+                setAppointments(data);
+            }
+        } catch (err) {
+            console.error("Error fetching appointments:", err);
+        }
+    };
 
     const fetchPatients = async () => {
         try {
@@ -87,8 +106,7 @@ const PatientProfile = () => {
                 // Update local state
                 setPatients(patients.map(p => p._id === editFormData._id ? data.data : p));
                 if (selectedPatient && selectedPatient === editFormData._id) {
-                    // If currently viewing details, update selection maybe?
-                    // Actually list update is enough usually.
+                    // Refresh selection if needed
                 }
                 setIsEditing(false);
                 setEditFormData(null);
@@ -104,12 +122,28 @@ const PatientProfile = () => {
         }
     };
 
+    // Helper to get appointment count for a patient
+    const getPatientAppointmentCount = (patientId) => {
+        return appointments.filter(a =>
+            (a.patientPortalId?._id === patientId) ||
+            (a.patientPortalId === patientId)
+        ).length;
+    };
+
     const patientDetails = {
         // Mock details for demonstration - in production, fetch from API
     };
 
     const currentPatient = selectedPatient ? patients.find(p => p._id === selectedPatient || p.patientId === selectedPatient) : null;
     const currentDetails = selectedPatient ? patientDetails[selectedPatient] : null;
+
+    // Filter appointments for the current patient
+    const patientAppointments = currentPatient
+        ? appointments.filter(a =>
+            (a.patientPortalId?._id === currentPatient._id) ||
+            (a.patientPortalId === currentPatient._id)
+        )
+        : [];
 
     if (loading) {
         return (
@@ -126,7 +160,7 @@ const PatientProfile = () => {
             <Layout title="Patient Management">
                 <div className="flex flex-col items-center justify-center h-96 gap-4">
                     <div className="p-4 bg-red-50 rounded-full">
-                        <AlertCircle className="w-8 h-8 text-red-600" />
+                        <Activity className="w-8 h-8 text-red-600" />
                     </div>
                     <p className="text-red-600 font-bold">{error}</p>
                     <button
@@ -275,93 +309,47 @@ const PatientProfile = () => {
                         </div>
                     )}
 
-                    {activeTab === 'consultations' && currentDetails && (
+                    {/* Consultation History Tab */}
+                    {activeTab === 'consultations' && (
                         <div className="bg-white rounded-[3rem] border border-gray-100 shadow-sm p-8">
                             <h4 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-6">Consultation History</h4>
-                            <div className="space-y-4">
-                                {currentDetails.consultations.map(con => (
-                                    <div key={con.id} className="p-6 bg-gray-50 rounded-2xl border border-gray-100 hover:border-blue-200 transition-all">
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div>
-                                                <p className="font-black text-gray-900 uppercase tracking-tight mb-1">{con.doctor}</p>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{con.speciality}</p>
+                            {patientAppointments.length > 0 ? (
+                                <div className="space-y-4">
+                                    {patientAppointments.map((appt) => (
+                                        <div key={appt._id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex justify-between items-center hover:bg-blue-50/30 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                                                    <Calendar className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-gray-900 uppercase tracking-tight text-sm">
+                                                        {new Date(appt.date).toLocaleDateString()}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                        {appt.time} • {appt.doctor?.name || appt.doctor}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            {con.status && (
-                                                <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-[9px] font-black uppercase tracking-widest">
-                                                    {con.status}
+                                            <div className="text-right">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${appt.status === 'Confirmed' ? 'bg-green-100 text-green-600' :
+                                                        appt.status === 'Pending' ? 'bg-orange-100 text-orange-600' :
+                                                            'bg-gray-100 text-gray-600'
+                                                    }`}>
+                                                    {appt.status}
                                                 </span>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-4 text-sm font-bold text-gray-700">
-                                            <span>{con.date}</span>
-                                            <span className="text-gray-300">•</span>
-                                            <span>{con.time}</span>
-                                        </div>
-                                        {con.notes && (
-                                            <p className="mt-3 text-xs text-gray-600 italic">{con.notes}</p>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'orders' && currentDetails && (
-                        <div className="bg-white rounded-[3rem] border border-gray-100 shadow-sm p-8">
-                            <h4 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-6">Medicine Orders</h4>
-                            <div className="space-y-4">
-                                {currentDetails.recentOrders.map(order => (
-                                    <div key={order.id} className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100 hover:border-blue-200 transition-all">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                                                <Package className="w-5 h-5 text-blue-600" />
-                                            </div>
-                                            <div>
-                                                <p className="font-black text-gray-900 uppercase tracking-tight">{order.item}</p>
-                                                <p className="text-[10px] text-gray-400 font-bold">Order ID: {order.id} • {order.date}</p>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                                                    {appt.department}
+                                                </p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-6">
-                                            <p className="text-lg font-black text-gray-900">{order.amount}</p>
-                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
-                                                }`}>
-                                                {order.status}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'vitals' && currentDetails && (
-                        <div className="bg-white rounded-[3rem] border border-gray-100 shadow-sm p-8">
-                            <h4 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-6">Vital Signs History</h4>
-                            <div className="space-y-4">
-                                {currentDetails.vitals.map((vital, i) => (
-                                    <div key={i} className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">{vital.date}</p>
-                                        <div className="grid grid-cols-4 gap-4">
-                                            <div>
-                                                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">BP</p>
-                                                <p className="text-lg font-black text-gray-900">{vital.bp}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Pulse</p>
-                                                <p className="text-lg font-black text-gray-900">{vital.pulse}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Temp</p>
-                                                <p className="text-lg font-black text-gray-900">{vital.temp}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">SpO2</p>
-                                                <p className="text-lg font-black text-gray-900">{vital.spo2}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12">
+                                    <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                                    <p className="text-sm font-bold text-gray-400">No consultation history found.</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -378,8 +366,8 @@ const PatientProfile = () => {
                     {[
                         { label: 'Total Patients', value: patients.length, icon: User, color: 'blue' },
                         { label: 'Active', value: patients.filter(p => p.status === 'Active').length, icon: Activity, color: 'green' },
-                        { label: 'Total Appointments', value: patients.reduce((sum, p) => sum + p.appointments, 0), icon: Calendar, color: 'purple' },
-                        { label: 'Active Orders', value: patients.reduce((sum, p) => sum + p.orders, 0), icon: Package, color: 'orange' }
+                        { label: 'Total Appointments', value: appointments.length, icon: Calendar, color: 'purple' },
+                        { label: 'Active Orders', value: patients.reduce((sum, p) => sum + (p.orders || 0), 0), icon: Package, color: 'orange' }
                     ].map((stat, i) => (
                         <div key={i} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center justify-between group hover:border-blue-200 transition-all">
                             <div>
@@ -470,15 +458,15 @@ const PatientProfile = () => {
 
                                 <div className="grid grid-cols-3 gap-2 pt-4 border-t border-gray-100">
                                     <div className="text-center p-2 bg-gray-50 rounded-xl">
-                                        <p className="text-xs font-black text-gray-900">{patient.appointments}</p>
+                                        <p className="text-xs font-black text-gray-900">{getPatientAppointmentCount(patient._id)}</p>
                                         <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400">Appts</p>
                                     </div>
                                     <div className="text-center p-2 bg-gray-50 rounded-xl">
-                                        <p className="text-xs font-black text-gray-900">{patient.prescriptions}</p>
+                                        <p className="text-xs font-black text-gray-900">{patient.prescriptions || 0}</p>
                                         <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400">Rx</p>
                                     </div>
                                     <div className="text-center p-2 bg-gray-50 rounded-xl">
-                                        <p className="text-xs font-black text-gray-900">{patient.orders}</p>
+                                        <p className="text-xs font-black text-gray-900">{patient.orders || 0}</p>
                                         <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400">Orders</p>
                                     </div>
                                 </div>
@@ -501,7 +489,7 @@ const PatientProfile = () => {
                                     <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-gray-400">Patient</th>
                                     <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-gray-400">Contact</th>
                                     <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-gray-400">Blood Group</th>
-                                    <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-gray-400">Last Visit</th>
+                                    <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-gray-400">Appointments</th>
                                     <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-gray-400">Status</th>
                                     <th className="text-left py-6 px-8 text-[10px] font-black uppercase tracking-widest text-gray-400">Action</th>
                                 </tr>
@@ -530,7 +518,7 @@ const PatientProfile = () => {
                                             </span>
                                         </td>
                                         <td className="py-6 px-8">
-                                            <p className="text-sm font-bold text-gray-700">{patient.lastVisit}</p>
+                                            <p className="text-sm font-bold text-gray-700">{getPatientAppointmentCount(patient._id)}</p>
                                         </td>
                                         <td className="py-6 px-8">
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${patient.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'

@@ -22,12 +22,20 @@ const patientRoutes = require('./routes/patientRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const statsRoutes = require('./routes/statsRoutes');
 const patientPortalRoutes = require('./routes/patientPortalRoutes');
+const medicineRoutes = require('./routes/medicineRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/patient-portal', patientPortalRoutes);
+app.use('/api/medicines', medicineRoutes);
+app.use('/api/orders', orderRoutes);
+
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

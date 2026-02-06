@@ -29,6 +29,8 @@ import Enquiries from './pages/Enquiries';
 import NavbarManager from './pages/NavbarManager';
 import PatientManager from './pages/PatientManager';
 import SkinAIDiagnosisManager from './pages/SkinAIDiagnosisManager';
+import MedicineManager from './pages/MedicineManager';
+import PharmacyOrders from './pages/PharmacyOrders';
 
 function App() {
   return (
@@ -64,6 +66,8 @@ function App() {
           <Route path="/navbar-manager" element={<NavbarManager />} />
           <Route path="/patient-manager" element={<PatientManager />} />
           <Route path="/skin-ai-manager" element={<SkinAIDiagnosisManager />} />
+          <Route path="/medicine-manager" element={<MedicineManager />} />
+          <Route path="/pharmacy-orders" element={<PharmacyOrders />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>

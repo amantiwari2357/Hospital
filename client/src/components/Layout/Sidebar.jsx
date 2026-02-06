@@ -18,7 +18,8 @@ import {
     Globe,
     MessageSquare,
     Navigation,
-    Sparkles
+    Sparkles,
+    ShoppingBag
 } from 'lucide-react';
 
 const Sidebar = ({ dark = false }) => {
@@ -51,6 +52,8 @@ const Sidebar = ({ dark = false }) => {
         // { icon: Users, label: 'Patient Manager', path: '/patient-manager' },
         { icon: Sparkles, label: 'AI Skin Diagnosis', path: '/skin-ai-manager' },
         { icon: MessageSquare, label: 'Enquiry Center', path: '/enquiries' },
+        { icon: Pill, label: 'Pharmacy Manager', path: '/medicine-manager' },
+        { icon: ShoppingBag, label: 'Pharmacy Orders', path: '/pharmacy-orders' },
         { icon: User, label: 'My Profile', path: '/profile' },
     ];
 
