@@ -1,19 +1,21 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const VisitTrendsChart = () => {
-    const data = [
+const VisitTrendsChart = ({ data }) => {
+    const defaultData = [
         { name: 'Week 1', visits: 320 },
         { name: 'Week 2', visits: 450 },
         { name: 'Week 3', visits: 380 },
         { name: 'Week 4', visits: 650 },
     ];
 
+    const chartData = data && data.length > 0 ? data : defaultData;
+
     return (
         <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h3 className="text-lg font-bold text-gray-900">Patient Visit Trends</h3>
-                    <p className="text-sm text-gray-500">Last 30 Days</p>
+                    <p className="text-sm text-gray-500">{data && data.length > 0 ? 'Live Data (Last 30 Days)' : 'Last 30 Days'}</p>
                 </div>
                 <div className="px-3 py-1 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
                     Last 30 Days
@@ -21,7 +23,7 @@ const VisitTrendsChart = () => {
             </div>
 
             <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={data}>
+                <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis
                         dataKey="name"

@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Layout from '../components/Layout/Layout';
 import {
     Users, UserPlus, Home, Search, Bell, Mail,
@@ -11,9 +13,11 @@ const StatCard = ({ title, value, change, icon: Icon, color }) => (
             <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">{title}</p>
             <div className="flex items-end gap-3">
                 <h3 className="text-4xl font-black text-gray-900 tracking-tight">{value}</h3>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full mb-1 ${change.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                    {change}
-                </span>
+                {change && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full mb-1 ${change.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                        {change}
+                    </span>
+                )}
             </div>
         </div>
         <div className={`p-4 rounded-2xl ${color} bg-opacity-10 group-hover:scale-110 transition-transform`}>
@@ -23,18 +27,66 @@ const StatCard = ({ title, value, change, icon: Icon, color }) => (
 );
 
 const PatientManagement = () => {
-    const patients = [
-        { name: 'Sarah Jenkins', id: '#MED-99281', age: '45', gender: 'F', status: 'Emergency', dept: 'Cardiology', doctor: 'Dr. A. Smith', initial: 'AS', date: 'Oct 24, 2023', img: 'https://i.pravatar.cc/150?u=sarah' },
-        { name: 'Michael Chen', id: '#MED-99245', age: '32', gender: 'M', status: 'IPD', dept: 'Neurology', doctor: 'Dr. J. Wong', initial: 'JW', date: 'Oct 22, 2023', img: 'https://i.pravatar.cc/150?u=michael' },
-        { name: 'Emily Davis', id: '#MED-99212', age: '28', gender: 'F', status: 'OPD', dept: 'General Medicine', doctor: 'Dr. B. Roberts', initial: 'BR', date: 'Today', img: 'https://i.pravatar.cc/150?u=emily' },
-        { name: 'James Doe', id: '#MED-99188', age: '55', gender: 'M', status: 'IPD', dept: 'Orthopedics', doctor: 'Dr. M. Khan', initial: 'MK', date: 'Oct 20, 2023', initial_box: 'JD' },
-        { name: 'Linda Taylor', id: '#MED-99056', age: '41', gender: 'F', status: 'OPD', dept: 'Dermatology', doctor: 'Dr. S. Lee', initial: 'SL', date: 'Today', img: 'https://i.pravatar.cc/150?u=linda' },
-    ];
+    const [stats, setStats] = useState(null);
+    const [patients, setPatients] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+                if (!userInfo || !userInfo.token) {
+                    setLoading(false);
+                    return;
+                }
+
+                const config = {
+                    headers: { Authorization: `Bearer ${userInfo.token}` },
+                };
+
+                const { data } = await axios.get('http://localhost:5000/api/stats/dashboard', config);
+                setStats(data.patientStats);
+
+                // Map backend patients to table format
+                if (data.latestPatients) {
+                    const formatted = data.latestPatients.map(p => ({
+                        name: p.name,
+                        id: `#MED-${p._id.toString().slice(-5).toUpperCase()}`,
+                        age: p.age,
+                        gender: p.gender === 'Male' ? 'M' : 'F',
+                        status: p.ward ? 'IPD' : 'OPD',
+                        dept: p.ward || 'General Medicine',
+                        doctor: p.assignedDoctor?.name || 'Assigned Staff',
+                        initial: p.assignedDoctor?.name?.split(' ').pop()?.slice(0, 2).toUpperCase() || 'ST',
+                        date: new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2023' === new Date(p.createdAt).getFullYear().toString() ? undefined : 'numeric' }),
+                        initial_box: p.name.split(' ').map(n => n[0]).join('').toUpperCase()
+                    }));
+                    setPatients(formatted);
+                }
+            } catch (error) {
+                console.error('Error fetching patient management data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <Layout title="Patient Overview">
+                <div className="flex items-center justify-center h-96">
+                    <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </Layout>
+        );
+    }
 
     return (
         <Layout title="Patient Overview">
             <div className="max-w-7xl mx-auto space-y-10">
-                {/* Breadcrumbs & Header */}
+                {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-md-end gap-6">
                     <div>
                         <div className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-4 items-center">
@@ -53,10 +105,34 @@ const PatientManagement = () => {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <StatCard title="Total Patients" value="1,248" change="+2.4%" icon={Users} color="bg-blue-500" />
-                    <StatCard title="Admitted (IPD)" value="342" change="+1.1%" icon={Home} color="bg-blue-500" />
-                    <StatCard title="OPD Today" value="156" change="↘ 0.5%" icon={Activity} color="bg-orange-500" />
-                    <StatCard title="Emergency" value="12" change="+5.0%" icon={AlertCircle} color="bg-red-500" />
+                    <StatCard
+                        title="Total Patients"
+                        value={stats?.total?.toLocaleString() || '0'}
+                        change="+2.4%"
+                        icon={Users}
+                        color="bg-blue-500"
+                    />
+                    <StatCard
+                        title="Admitted (IPD)"
+                        value={stats?.ipd?.toLocaleString() || '0'}
+                        change="+1.1%"
+                        icon={Home}
+                        color="bg-blue-500"
+                    />
+                    <StatCard
+                        title="OPD Today"
+                        value={stats?.opdToday?.toLocaleString() || '0'}
+                        change="↘ 0.5%"
+                        icon={Activity}
+                        color="bg-orange-500"
+                    />
+                    <StatCard
+                        title="Emergency"
+                        value={stats?.emergencyToday?.toLocaleString() || '0'}
+                        change="+5.0%"
+                        icon={AlertCircle}
+                        color="bg-red-500"
+                    />
                 </div>
 
                 {/* Main Content Card */}
@@ -64,10 +140,10 @@ const PatientManagement = () => {
                     {/* Filters Bar */}
                     <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-gray-50/20">
                         <div className="flex items-center gap-4">
-                            <select className="bg-white border border-gray-100 rounded-2xl px-6 py-3 text-xs font-black text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none cursor-pointer">
+                            <select className="bg-white border border-gray-100 rounded-2xl px-6 py-3 text-xs font-black text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none cursor-pointer text-center">
                                 <option>All Departments</option>
                             </select>
-                            <select className="bg-white border border-gray-100 rounded-2xl px-6 py-3 text-xs font-black text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none cursor-pointer">
+                            <select className="bg-white border border-gray-100 rounded-2xl px-6 py-3 text-xs font-black text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none cursor-pointer text-center">
                                 <option>All Status</option>
                             </select>
                             <div className="relative">
@@ -76,7 +152,9 @@ const PatientManagement = () => {
                                     placeholder="Select date range"
                                     className="bg-white border border-gray-100 rounded-2xl px-12 py-3 text-xs font-black text-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all w-[240px]"
                                 />
-                                <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                </div>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -91,17 +169,17 @@ const PatientManagement = () => {
                             <thead>
                                 <tr className="border-b border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/10">
                                     <th className="px-8 py-6 w-12"><input type="checkbox" className="rounded border-gray-300" /></th>
-                                    <th className="px-6 py-6 font-black">Patient Name</th>
-                                    <th className="px-6 py-6 font-black">Medical ID</th>
-                                    <th className="px-6 py-6 font-black text-center">Status</th>
-                                    <th className="px-6 py-6 font-black">Department</th>
-                                    <th className="px-6 py-6 font-black">Doctor Assigned</th>
-                                    <th className="px-6 py-6 font-black">Date</th>
-                                    <th className="px-8 py-6 text-right font-black">Action</th>
+                                    <th className="px-6 py-6">Patient Name</th>
+                                    <th className="px-6 py-6">Medical ID</th>
+                                    <th className="px-6 py-6 text-center">Status</th>
+                                    <th className="px-6 py-6">Department</th>
+                                    <th className="px-6 py-6">Doctor Assigned</th>
+                                    <th className="px-6 py-6">Date</th>
+                                    <th className="px-8 py-6 text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {patients.map((p, i) => (
+                                {patients.length > 0 ? patients.map((p, i) => (
                                     <tr key={i} className="group hover:bg-blue-50/20 transition-all cursor-pointer">
                                         <td className="px-8 py-5"><input type="checkbox" className="rounded border-gray-300" /></td>
                                         <td className="px-6 py-5">
@@ -122,8 +200,8 @@ const PatientManagement = () => {
                                         </td>
                                         <td className="px-6 py-5 text-center">
                                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${p.status === 'Emergency' ? 'bg-red-50 text-red-500 border border-red-100' :
-                                                    p.status === 'IPD' ? 'bg-blue-50 text-blue-500 border border-blue-100' :
-                                                        'bg-gray-50 text-gray-500 border border-gray-100'
+                                                p.status === 'IPD' ? 'bg-blue-50 text-blue-500 border border-blue-100' :
+                                                    'bg-gray-50 text-gray-500 border border-gray-100'
                                                 }`}>
                                                 {p.status}
                                             </span>
@@ -144,14 +222,18 @@ const PatientManagement = () => {
                                             <button className="text-xs font-black text-blue-600 hover:underline underline-offset-4 tracking-tighter">View Profile</button>
                                         </td>
                                     </tr>
-                                ))}
+                                )) : (
+                                    <tr>
+                                        <td colSpan="8" className="px-8 py-20 text-center text-gray-400 font-bold uppercase tracking-widest">No patient records found</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
 
                     {/* Pagination */}
                     <div className="p-8 border-t border-gray-50 flex items-center justify-between text-xs font-bold text-gray-500 bg-gray-50/10">
-                        <p>Showing 1-5 of 1,248</p>
+                        <p>Showing {patients.length > 0 ? `1-${patients.length}` : '0'} of {stats?.total || 0}</p>
                         <div className="flex items-center gap-8">
                             <div className="flex items-center gap-4">
                                 <span>Rows per page:</span>
@@ -175,10 +257,5 @@ const PatientManagement = () => {
     );
 };
 
-const CalendarIcon = ({ className }) => (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-);
-
 export default PatientManagement;
+

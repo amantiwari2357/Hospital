@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Layout from '../components/Layout/Layout';
 import StatsCard from '../components/Dashboard/StatsCard';
 import VisitTrendsChart from '../components/Dashboard/VisitTrendsChart';
@@ -48,17 +49,29 @@ const Dashboard = () => {
         fetchStats();
     }, []);
 
-    const recentActivity = [
-        { icon: UserPlus, text: 'Dr. Smith added a new patient', time: '2 minutes ago', color: 'blue' },
-        { icon: FileText, text: 'Invoice #4022 paid', time: '15 minutes ago', color: 'green' },
-        { icon: AlertCircle, text: 'Low stock: Surgical Gloves', time: '1 hour ago', color: 'orange' },
-    ];
+    // Icon mapping for dynamic activity
+    const iconMap = {
+        UserPlus,
+        FileText,
+        AlertCircle,
+        Calendar,
+        CalendarPlus,
+        Users
+    };
 
-    const doctors = [
-        { name: 'Dr. James', specialty: 'Cardiology', status: 'Available', color: 'green' },
-        { name: 'Dr. Linda', specialty: 'Surgery', status: 'In Surgery', color: 'red' },
-        { name: 'Dr. Chen', specialty: 'General', status: 'Off Duty', color: 'gray' },
-    ];
+    const displayActivity = stats?.recentActivity?.map(a => ({
+        ...a,
+        icon: iconMap[a.icon] || UserPlus
+    })) || [];
+
+    const displayDoctors = stats?.doctors || [];
+
+    const displayRevenueByDept = stats?.revenueByDept || [];
+
+
+    const totalBeds = (stats?.bedOccupancy?.icu || 0) + (stats?.bedOccupancy?.general || 0) + (stats?.bedOccupancy?.private || 0);
+    const totalCapacity = 90; // Fixed capacity for percentage calculation
+    const totalOccupancyPercent = Math.round((totalBeds / totalCapacity) * 100);
 
     if (loading) {
         return (
@@ -70,52 +83,73 @@ const Dashboard = () => {
         );
     }
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
     return (
         <Layout title="Control Center">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+            {/* Stats Grid with Staggered Animation */}
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8"
+            >
                 <StatsCard
                     title="Total Patients"
-                    value={stats?.totalPatients?.value || 12450}
-                    change={stats?.totalPatients?.change || 12}
+                    value={stats?.totalPatients?.value || 0}
+                    change={stats?.totalPatients?.change || 0}
                     icon={Users}
                     color="blue"
                 />
                 <StatsCard
                     title="Appointments Today"
-                    value={stats?.appointmentsToday?.value || 84}
-                    change={stats?.appointmentsToday?.change || 5}
+                    value={stats?.appointmentsToday?.value || 0}
+                    change={stats?.appointmentsToday?.change || 0}
                     icon={Calendar}
                     color="blue"
                 />
                 <StatsCard
                     title="Active Staff"
-                    value={stats?.activeStaff?.value || 142}
-                    status={stats?.activeStaff?.status || 'Stable'}
+                    value={stats?.activeStaff?.value || 0}
+                    status={stats?.activeStaff?.status || 'Active'}
                     icon={UserCheck}
                     color="purple"
                 />
                 <StatsCard
                     title="Revenue Today"
-                    value={`$${(stats?.revenueToday?.value || 45200).toLocaleString()}`}
-                    change={stats?.revenueToday?.change || 8}
+                    value={`$${(stats?.revenueToday?.value || 0).toLocaleString()}`}
+                    change={stats?.revenueToday?.change || 0}
                     icon={DollarSign}
                     color="green"
                 />
                 <StatsCard
                     title="Pending Payments"
-                    value={`$${(stats?.pendingPayments?.value || 12050).toLocaleString()}`}
+                    value={`$${(stats?.pendingPayments?.value || 0).toLocaleString()}`}
                     status="Action Required"
                     icon={AlertCircle}
                     color="orange"
                 />
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Chart */}
-                <div className="lg:col-span-2">
-                    <VisitTrendsChart />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Chart with premium container */}
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="lg:col-span-2 relative group"
+                >
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-5 group-hover:opacity-10 transition duration-1000 group-hover:duration-200"></div>
+                    <VisitTrendsChart data={stats?.trends} />
+                </motion.div>
 
                 {/* Quick Actions */}
                 <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white">
@@ -149,12 +183,7 @@ const Dashboard = () => {
                 <div className="bg-white rounded-xl p-6 border border-gray-200">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">Revenue by Department</h3>
                     <div className="space-y-4">
-                        {[
-                            { name: 'Cardiology', percentage: 40, amount: '$1.2M', color: 'blue' },
-                            { name: 'Orthopedics', percentage: 30, amount: '$900K', color: 'purple' },
-                            { name: 'Neurology', percentage: 20, amount: '$600K', color: 'indigo' },
-                            { name: 'Others', percentage: 10, amount: '$300K', color: 'gray' },
-                        ].map((dept) => (
+                        {displayRevenueByDept.length > 0 ? displayRevenueByDept.map((dept) => (
                             <div key={dept.name}>
                                 <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
@@ -173,12 +202,16 @@ const Dashboard = () => {
                                     ></div>
                                 </div>
                             </div>
-                        ))}
+                        )) : (
+                            <div className="text-center py-6 text-gray-400 font-medium italic">No revenue data available</div>
+                        )}
                     </div>
                     <div className="mt-4 pt-4 border-t border-gray-200">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-gray-700">Total</span>
-                            <span className="text-lg font-bold text-gray-900">$1.2M</span>
+                            <span className="text-sm font-semibold text-gray-700">Total Revenue Identified</span>
+                            <span className="text-lg font-bold text-gray-900">
+                                ${displayRevenueByDept.reduce((acc, curr) => acc + parseInt(curr.amount.replace(/[^0-9]/g, '') || 0), 0).toLocaleString()}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -189,7 +222,7 @@ const Dashboard = () => {
                     <div className="bg-white rounded-xl p-6 border border-gray-200">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">Recent Activity</h3>
                         <div className="space-y-3">
-                            {recentActivity.map((activity, index) => {
+                            {displayActivity.length > 0 ? displayActivity.map((activity, index) => {
                                 const Icon = activity.icon;
                                 return (
                                     <div key={index} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
@@ -202,7 +235,9 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                 );
-                            })}
+                            }) : (
+                                <div className="text-center py-6 text-gray-400 font-medium italic">No recent activity detected</div>
+                            )}
                         </div>
                     </div>
 
@@ -210,11 +245,11 @@ const Dashboard = () => {
                     <div className="bg-white rounded-xl p-6 border border-gray-200">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">Doctor Availability</h3>
                         <div className="space-y-3">
-                            {doctors.map((doctor, index) => (
+                            {displayDoctors.length > 0 ? displayDoctors.map((doctor, index) => (
                                 <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                            {doctor.name.split(' ')[1].charAt(0)}
+                                            {doctor.name.split(' ').pop().charAt(0)}
                                         </div>
                                         <div>
                                             <p className="text-sm font-semibold text-gray-900">{doctor.name}</p>
@@ -228,10 +263,13 @@ const Dashboard = () => {
                                         {doctor.status}
                                     </span>
                                 </div>
-                            ))}
+                            )) : (
+                                <div className="text-center py-6 text-gray-400 font-medium italic">No medical staff found</div>
+                            )}
                         </div>
                     </div>
                 </div>
+
             </div>
 
             {/* Hospital Operations */}
@@ -242,34 +280,34 @@ const Dashboard = () => {
                     <div>
                         <div className="flex items-center justify-between mb-3">
                             <span className="text-sm font-medium text-gray-600">Bed Occupancy</span>
-                            <span className="text-sm font-bold text-gray-900">82% Total</span>
+                            <span className="text-sm font-bold text-gray-900">{totalOccupancyPercent || 0}% Total</span>
                         </div>
                         <div className="space-y-2">
                             <div>
                                 <div className="flex items-center justify-between text-xs mb-1">
                                     <span className="text-gray-600">ICU</span>
-                                    <span className="font-semibold">9/10</span>
+                                    <span className="font-semibold">{stats?.bedOccupancy?.icu || 0}/10</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2">
-                                    <div className="bg-red-500 h-2 rounded-full" style={{ width: '90%' }}></div>
+                                    <div className="bg-red-500 h-2 rounded-full" style={{ width: `${(stats?.bedOccupancy?.icu || 0) * 10}%` }}></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="flex items-center justify-between text-xs mb-1">
                                     <span className="text-gray-600">General Ward</span>
-                                    <span className="font-semibold">45/60</span>
+                                    <span className="font-semibold">{stats?.bedOccupancy?.general || 0}/60</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2">
-                                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${((stats?.bedOccupancy?.general || 0) / 60) * 100}%` }}></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="flex items-center justify-between text-xs mb-1">
                                     <span className="text-gray-600">Private Rooms</span>
-                                    <span className="font-semibold">12/20</span>
+                                    <span className="font-semibold">{stats?.bedOccupancy?.private || 0}/20</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2">
-                                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '60%' }}></div>
+                                    <div className="bg-green-500 h-2 rounded-full" style={{ width: `${((stats?.bedOccupancy?.private || 0) / 20) * 100}%` }}></div>
                                 </div>
                             </div>
                         </div>
@@ -282,7 +320,7 @@ const Dashboard = () => {
                             <span className="text-sm font-medium text-gray-600">Doctor Availability</span>
                         </div>
                         <div className="space-y-2">
-                            {doctors.map((doctor, index) => (
+                            {displayDoctors.slice(0, 3).map((doctor, index) => (
                                 <div key={index} className="flex items-center justify-between">
                                     <span className="text-sm text-gray-700">{doctor.name}</span>
                                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${doctor.color === 'green' ? 'bg-green-100 text-green-700' :
@@ -301,18 +339,19 @@ const Dashboard = () => {
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-gray-600">Emergency Cases</span>
-                                <span className="text-lg font-bold text-red-600">3</span>
+                                <span className="text-lg font-bold text-red-600">{stats?.emergencyToday || 0}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-gray-600">Surgeries Today</span>
-                                <span className="text-lg font-bold text-blue-600">7</span>
+                                <span className="text-lg font-bold text-blue-600">{stats?.surgeriesToday || 0}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-gray-600">Discharges Pending</span>
-                                <span className="text-lg font-bold text-green-600">5</span>
+                                <span className="text-lg font-bold text-green-600">{stats?.dischargesPending || 0}</span>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </Layout>
