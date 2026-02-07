@@ -78,7 +78,8 @@ const PatientProfile = () => {
 
                 setLoading(false);
             } catch (err) {
-                console.error(err);
+                console.error("Fetch error:", err);
+                setError('Unable to connect to the medical server. Please ensure the backend is running.');
                 setLoading(false);
             }
         };
@@ -96,6 +97,31 @@ const PatientProfile = () => {
         return (
             <div className="bg-slate-50 min-h-screen flex items-center justify-center">
                 <Loader className="w-8 h-8 text-medical-600 animate-spin" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="bg-slate-50 min-h-screen flex flex-col items-center justify-center p-4">
+                <div className="bg-white p-10 rounded-[2.5rem] border border-red-100 shadow-xl shadow-red-200/20 max-w-md w-full text-center">
+                    <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center text-red-500 mb-6 mx-auto">
+                        <Activity className="w-10 h-10" />
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-900 mb-4 italic">Connection Issue</h2>
+                    <p className="text-slate-500 font-medium mb-8 italic">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="w-full py-4 bg-medical-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-medical-200 hover:bg-medical-600 transition-all italic"
+                    >
+                        Try Again
+                    </button>
+                    {error.includes('backend is running') && (
+                        <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest italic pt-6 border-t border-slate-100">
+                            Check server terminal for logs
+                        </p>
+                    )}
+                </div>
             </div>
         );
     }

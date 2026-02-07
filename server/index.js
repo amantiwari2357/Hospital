@@ -9,8 +9,13 @@ connectDB(); // Attempting database connection
 
 const app = express();
 
+const checkDbConnection = require('./middleware/dbCheckMiddleware');
+
 app.use(cors());
 app.use(express.json());
+
+// Apply DB connection check to all API routes
+app.use('/api', checkDbConnection);
 
 app.get('/', (req, res) => {
     res.send('API is running...');
