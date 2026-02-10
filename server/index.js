@@ -11,29 +11,16 @@ const app = express();
 
 const checkDbConnection = require('./middleware/dbCheckMiddleware');
 
-// Hardened CORS for Production & Development
-const whiteList = [
-    'https://hospital-mahan.netlify.app',
-    'https://hospital-40m0.onrender.com',
-    'http://localhost:5173',
-    'http://localhost:3000'
-];
-
-const corsOptions = {
+// Simplified Permissive CORS (Production-Ready for multi-origin hospital apps)
+app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || whiteList.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            console.warn(`CORS blocked for origin: ${origin}`);
-            callback(new Error('Not allowed by CORS'));
-        }
+        // Allow any origin that's present (or null for local tests)
+        callback(null, true);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-};
-
-app.use(cors(corsOptions));
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -74,10 +61,10 @@ app.use(notFound);
 
 // Final Error Handler with CORS explicit header
 app.use((err, req, res, next) => {
-    // Ensure CORS headers are present even in error state
     const origin = req.headers.origin;
-    if (origin && whiteList.includes(origin)) {
+    if (origin) {
         res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
     errorHandler(err, req, res, next);
 });
