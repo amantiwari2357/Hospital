@@ -3,26 +3,44 @@ import json
 import random
 import mediapipe as mp
 
-# --- MediaPipe Robust Initialization ---
+# --- MediaPipe Ultra-Robust Initialization ---
+import sys
+
+# Trick to force deeper registration of submodules
 try:
     import mediapipe as mp
-    # Direct import path for better stability in varied environments
-    from mediapipe.python.solutions import face_mesh as mp_face_mesh
+    import mediapipe.python.solutions.face_mesh as mp_face_mesh
     face_mesh = mp_face_mesh.FaceMesh(
         static_image_mode=True,
         max_num_faces=1,
         refine_landmarks=True,
         min_detection_confidence=0.5
     )
-except (AttributeError, ImportError):
-    # Fallback to standard if direct fails (or vice versa)
-    import mediapipe as mp
-    face_mesh = mp.solutions.face_mesh.FaceMesh(
-        static_image_mode=True,
-        max_num_faces=1,
-        refine_landmarks=True,
-        min_detection_confidence=0.5
-    )
+except Exception:
+    try:
+        # Emergency hack for broken namespaces
+        import mediapipe as mp
+        from mediapipe.python.solutions import face_mesh as fm
+        face_mesh = fm.FaceMesh(
+            static_image_mode=True,
+            max_num_faces=1,
+            refine_landmarks=True,
+            min_detection_confidence=0.5
+        )
+    except Exception as final_e:
+        # Final attempt: direct path injection if necessary
+        # Most likely error is AttributeError on 'mp.solutions'
+        import mediapipe as mp
+        try:
+            face_mesh = mp.solutions.face_mesh.FaceMesh(
+                static_image_mode=True,
+                max_num_faces=1,
+                refine_landmarks=True,
+                min_detection_confidence=0.5
+            )
+        except AttributeError:
+             print(json.dumps({"error": "MediaPipe namespace error", "details": str(final_e)}))
+             sys.exit(1)
 import base64
 import numpy as np
 import cv2
