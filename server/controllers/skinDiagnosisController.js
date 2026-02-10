@@ -96,65 +96,67 @@ const analyzeSkin = async (req, res) => {
         pythonProcess.stderr.on('data', (data) => errorData += data.toString());
 
         pythonProcess.on('close', async (code) => {
-            // Filter out purely informational messages from stderr
+            // Filter noise from stderr
             const filteredError = errorData
                 .split('\n')
                 .filter(line => {
-                    const isInfo = line.includes('Matplotlib is building the font cache') ||
-                        line.includes('Moment');
+                    const isInfo = line.includes('Matplotlib') ||
+                        line.includes('Moment') ||
+                        line.includes('font cache');
                     return line.trim() !== '' && !isInfo;
                 })
                 .join('\n')
                 .trim();
 
-            if (code !== 0 || filteredError) {
-                console.error(`AI Analysis Ended (Code ${code}):`, filteredError || errorData);
-
-                // If we got valid result despite stderr noise, we might want to proceed
-                // But if code is non-zero, it likely failed.
-                if (code !== 0) {
-                    diagnosis.status = 'Failed';
-                    await diagnosis.save();
-                    return res.status(500).json({
-                        message: 'AI Engine Error',
-                        error: filteredError || 'Process exited unexpectedly'
-                    });
-                }
-            }
+            let analysisResult = null;
+            let parseError = null;
 
             try {
-                // If stdout is empty but we reached here, it's also an error
-                if (!resultData.trim()) {
-                    throw new Error('No output from AI engine');
+                if (resultData.trim()) {
+                    analysisResult = JSON.parse(resultData);
                 }
+            } catch (err) {
+                parseError = err.message;
+            }
 
-                const analysisResult = JSON.parse(resultData);
-
+            // Decision Logic:
+            // 1. If we have a structured result (even with code != 0), check for errors in it
+            if (analysisResult) {
                 if (analysisResult.error) {
                     diagnosis.status = 'Failed';
                     await diagnosis.save();
-                    return res.status(400).json({ message: 'Validation Error', error: analysisResult.error });
+                    return res.status(400).json({
+                        message: 'AI Engine Diagnostic',
+                        error: analysisResult.error,
+                        details: analysisResult.details
+                    });
                 }
 
-                // 4. Update with Results
+                // 2. Successful analysis path
                 diagnosis.status = 'Pending Review';
                 diagnosis.aiAnalysis = analysisResult;
-
-                try {
-                    await diagnosis.save();
-                } catch (saveError) {
-                    console.error('Final Save Warning:', saveError.message);
-                }
-
-                res.status(201).json({
+                await diagnosis.save();
+                return res.status(201).json({
                     ...diagnosis.toObject(),
                     aiAnalysis: analysisResult
                 });
-
-            } catch (err) {
-                console.error('Result Processing Error:', err.message);
-                res.status(500).json({ message: 'Server Process Error', error: err.message });
             }
+
+            // 3. If no structured result and code is non-zero, it's a crash
+            if (code !== 0) {
+                console.error(`AI Engine Crash (Code ${code}). Raw Error Data:`, errorData);
+                diagnosis.status = 'Failed';
+                await diagnosis.save();
+                return res.status(500).json({
+                    message: 'AI Process Crash',
+                    error: filteredError || errorData.slice(-500) || 'Process terminated silently',
+                    details: 'Check server logs for full traceback',
+                    code
+                });
+            }
+
+            // 4. Fallback for empty results
+            res.status(500).json({ message: 'Empty Analysis Result', error: parseError || 'Unknown Error' });
         });
 
     } catch (error) {

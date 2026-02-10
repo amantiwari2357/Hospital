@@ -2,17 +2,24 @@ import sys
 import os
 import json
 import random
-# --- MediaPipe Optimized Initialization ---
-import sys
-import logging
 
+# Stage 0 Debug
+print("DEBUG: AI Script Started", file=sys.stderr)
+import logging
+import traceback
+import base64
+import numpy as np
+import cv2
+
+# --- Environment Conditioning ---
 # Silence Matplotlib font cache messages
 logging.getLogger('matplotlib.font_manager').disabled = True
 os.environ['MPLBACKEND'] = 'Agg' # Use non-interactive backend
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Silence TensorFlow noise from mediapipe
 
+# --- MediaPipe Optimized Initialization ---
 try:
-    # Standard solution import
-    import mediapipe as mp
+    # Attempt direct solutions import (stable on most cloud environments)
     import mediapipe.solutions.face_mesh as mp_fm
     face_mesh = mp_fm.FaceMesh(
         static_image_mode=True,
@@ -20,29 +27,25 @@ try:
         refine_landmarks=True,
         min_detection_confidence=0.5
     )
-except (ImportError, AttributeError) as e:
+except (ImportError, AttributeError) as e_primary:
     try:
-        # Fallback for older or specific structures
+        # Fallback to standard top-level import
         import mediapipe as mp
-        from mediapipe.python.solutions import face_mesh as mp_fm_alt
-        face_mesh = mp_fm_alt.FaceMesh(
+        face_mesh = mp.solutions.face_mesh.FaceMesh(
             static_image_mode=True,
             max_num_faces=1,
             refine_landmarks=True,
             min_detection_confidence=0.5
         )
-    except Exception as e2:
+    except Exception as e_secondary:
+        # Final diagnostic output before exit
         print(json.dumps({
             "error": "MediaPipe Initialization Failed",
-            "details": f"Attempt 1: {str(e)} | Attempt 2: {str(e2)}",
+            "details": f"Direct: {str(e_primary)} | Standard: {str(e_secondary)}",
             "python_version": sys.version,
             "path": sys.path
         }))
         sys.exit(1)
-import base64
-import numpy as np
-import cv2
-import traceback
 
 def decode_image(image_data):
     try:
