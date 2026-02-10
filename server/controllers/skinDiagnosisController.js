@@ -87,28 +87,47 @@ const analyzeSkin = async (req, res) => {
                 // 3. Update record with analysis results
                 diagnosis.status = 'Pending Review';
                 diagnosis.aiAnalysis = analysisResult;
-                const savedDiagnosis = await diagnosis.save();
 
-                res.status(201).json(savedDiagnosis);
-
-            } catch (err) {
-                console.error('Analysis Process Error:', err);
-                console.error('Raw Python Output:', resultData);
-
-                diagnosis.status = 'Failed';
                 try {
                     await diagnosis.save();
-                } catch (saveErr) {
-                    console.error('Failed to save diagnosis after process error:', saveErr);
+                } catch (saveError) {
+                    console.error('Final Save Warning (History may be incomplete):', saveError.message);
+                    // We don't return here because the AI actually worked!
                 }
 
-                if (err instanceof SyntaxError) {
-                    return res.status(500).json({ message: 'Failed to parse AI output', error: 'Invalid response format' });
+                // Return result to user even if DB save for history fails
+                res.status(201).json({
+                    ...diagnosis.toObject(),
+                    aiAnalysis: analysisResult,
+                    _dbWarning: diagnosis.isNew ? 'History not saved' : null
+                });
+
+            } catch (err) {
+                console.error('Analysis Finalization Error:', err.message);
+
+                diagnosis.status = 'Failed';
+                diagnosis.doctorNotes = `Server sync error: ${err.message}`;
+
+                try {
+                    await diagnosis.save();
+                } catch (sErr) { }
+
+                // If error is just DB but Python worked, try to return Python data
+                if (resultData && resultData.includes('"success": true')) {
+                    try {
+                        const recover = JSON.parse(resultData);
+                        return res.status(200).json({
+                            success: true,
+                            aiAnalysis: recover.aiAnalysis,
+                            status: 'Partially Saved (DB Sync Issue)'
+                        });
+                    } catch (pe) { }
                 }
 
                 res.status(500).json({
                     message: 'Backend operation failed',
-                    error: err.name === 'MongoNetworkError' ? 'Database connection error' : err.message
+                    error: err.name === 'MongoNetworkError' ? 'Database connection error' : err.message,
+                    pythonRaw: process.env.NODE_ENV === 'development' ? resultData : undefined
                 });
             }
         });

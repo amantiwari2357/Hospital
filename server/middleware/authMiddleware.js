@@ -4,8 +4,7 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
     let token;
 
-    // Debug Tip: Log the auth header to verify token presence
-    console.log("AUTH HEADER:", req.headers.authorization);
+    // Debug Tip: Log the auth header to verify token presence if needed
 
     if (
         req.headers.authorization &&

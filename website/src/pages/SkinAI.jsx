@@ -370,7 +370,7 @@ const SkinAI = () => {
                                                 </div>
 
                                                 {/* Medical Metrics Dashboard */}
-                                                {result.medical_metrics && (
+                                                {result?.medical_metrics && (
                                                     <div className="bg-slate-900 rounded-3xl p-6 text-white">
                                                         <div className="flex items-center gap-2 mb-6">
                                                             <Zap className="w-4 h-4 text-medical-400" />
@@ -379,19 +379,19 @@ const SkinAI = () => {
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
                                                                 <p className="text-[8px] text-slate-500 uppercase font-black mb-1">Inflammation</p>
-                                                                <p className="text-lg font-black text-medical-400">{result.medical_metrics.inflammation_index}</p>
+                                                                <p className="text-lg font-black text-medical-400">{result.medical_metrics.inflammation_index || result.medical_metrics.inflammation_score || '0%'}</p>
                                                             </div>
                                                             <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
                                                                 <p className="text-[8px] text-slate-500 uppercase font-black mb-1">Pigmentation</p>
-                                                                <p className="text-lg font-black text-amber-400">{result.medical_metrics.pigment_index}</p>
+                                                                <p className="text-lg font-black text-amber-400">{result.medical_metrics.pigment_index || result.medical_metrics.pigment_score || '0%'}</p>
                                                             </div>
                                                             <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
                                                                 <p className="text-[8px] text-slate-500 uppercase font-black mb-1">Color Loss</p>
-                                                                <p className="text-lg font-black text-slate-300">{result.medical_metrics.depigmentation_index}</p>
+                                                                <p className="text-lg font-black text-slate-300">{result.medical_metrics.depigmentation_index || result.medical_metrics.color_loss_score || '0%'}</p>
                                                             </div>
                                                             <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
                                                                 <p className="text-[8px] text-slate-500 uppercase font-black mb-1">Texture (Rough)</p>
-                                                                <p className="text-lg font-black text-medical-200">{result.medical_metrics.skin_roughness}</p>
+                                                                <p className="text-lg font-black text-medical-200">{result.medical_metrics.skin_roughness || '0'}</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -400,9 +400,9 @@ const SkinAI = () => {
                                                 <div>
                                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Suggested Next Steps</p>
                                                     <div className="grid gap-3">
-                                                        {result.suggestions.map((s, i) => (
+                                                        {(result?.suggestions || []).map((s, i) => (
                                                             <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100 shadow-sm transition-all hover:translate-x-1">
-                                                                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                                                                <AlertCircle className="w-3.5 h-3.5 text-medical-500" />
                                                                 <span className="text-xs font-bold text-slate-700">{s}</span>
                                                             </div>
                                                         ))}
