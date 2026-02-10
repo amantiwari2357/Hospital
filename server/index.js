@@ -15,10 +15,10 @@ const checkDbConnection = require('./middleware/dbCheckMiddleware');
 const allowedOrigins = [
     'https://hospital-40m0.onrender.com',      // Production Backend
     'https://hospital-seven-taupe.vercel.app', // Production Website (Vercel)
-    'http://localhost:5173',
-    'http://localhost:5174',                     // Local Development (Vite)
-    'http://localhost:3000',
-    'hospital-etvu.vercel.app'                   // Alternative Local Port
+    'https://hospital-etvu.vercel.app',        // Alternative Vercel Deployment
+    'http://localhost:5173',                   // Local Development (Vite)
+    'http://localhost:5174',                   // Local Development (Vite Alt)
+    'http://localhost:3000'                    // Alternative Local Port
 ];
 
 app.use(cors({
