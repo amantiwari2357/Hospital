@@ -28,6 +28,7 @@ const SkinAI = () => {
     const [isSubmittingConsultation, setIsSubmittingConsultation] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [cameraMode, setCameraMode] = useState('environment'); // 'user' or 'environment'
+    const [activeHotspot, setActiveHotspot] = useState(null);
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const fileInputRef = useRef(null);
@@ -194,6 +195,7 @@ const SkinAI = () => {
         setPhoneNumber('');
         setIsAnalyzing(false);
         setShowConsultation(false);
+        setActiveHotspot(null);
     };
 
     return (
@@ -357,18 +359,45 @@ const SkinAI = () => {
                                     className="bg-white rounded-[3.5rem] lg:rounded-[4rem] shadow-2xl border border-slate-100 overflow-hidden"
                                 >
                                     {/* Preview Header */}
-                                    <div className="relative h-72 md:h-96 bg-slate-100">
-                                        <img src={selectedImage} alt="Analysis" className="w-full h-full object-cover" />
+                                    <div className="relative h-72 md:h-96 bg-slate-900 flex items-center justify-center">
+                                        <img src={selectedImage} alt="Analysis" className="w-full h-full object-contain" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
+
+                                        {/* Hotspot Markers */}
+                                        {!isAnalyzing && result?.hotspots?.map((hotspot, idx) => (
+                                            <motion.button
+                                                key={idx}
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                whileHover={{ scale: 1.2 }}
+                                                onClick={() => setActiveHotspot(hotspot)}
+                                                className={`absolute z-20 group flex items-center justify-center`}
+                                                style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, transform: 'translate(-50%, -50%)' }}
+                                            >
+                                                <div className="relative">
+                                                    {/* Blinking Pulse */}
+                                                    <div className="absolute inset-0 bg-medical-500 rounded-full animate-ping opacity-75 scale-150" />
+                                                    {/* Central Marker */}
+                                                    <div className={`w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all ${activeHotspot === hotspot ? 'bg-medical-600' : 'bg-medical-500/80 hover:bg-medical-600'}`}>
+                                                        <ArrowRight className={`w-4 h-4 text-white transform rotate-[-45deg] transition-transform ${activeHotspot === hotspot ? 'rotate-90' : ''}`} />
+                                                    </div>
+                                                    {/* Label Tooltip */}
+                                                    <div className="absolute top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-slate-900/90 text-white text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {hotspot.label}
+                                                    </div>
+                                                </div>
+                                            </motion.button>
+                                        ))}
+
                                         <button
                                             onClick={resetScan}
-                                            className="absolute top-8 right-8 w-12 h-12 bg-white/90 backdrop-blur-md rounded-2xl flex items-center justify-center text-slate-900 shadow-xl hover:bg-red-500 hover:text-white transition-all"
+                                            className="absolute top-8 right-8 w-12 h-12 bg-white/90 backdrop-blur-md rounded-2xl flex items-center justify-center text-slate-900 shadow-xl hover:bg-red-500 hover:text-white transition-all z-30"
                                         >
                                             <X className="w-6 h-6" />
                                         </button>
 
                                         {isAnalyzing && (
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm">
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm z-30">
                                                 <RefreshCw className="w-16 h-16 text-medical-600 animate-spin mb-6" />
                                                 <p className="text-xl font-black text-medical-600 uppercase tracking-tighter animate-pulse">Running Neural Diagnosis...</p>
                                             </div>
@@ -425,6 +454,46 @@ const SkinAI = () => {
                                                         </div>
                                                     </div>
                                                 )}
+
+                                                {/* Interactive Hotspot Details */}
+                                                <AnimatePresence>
+                                                    {activeHotspot && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: 'auto' }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            className="bg-medical-50/50 border border-medical-100 rounded-[2.5rem] p-8 space-y-6"
+                                                        >
+                                                            <div className="flex items-center gap-4 border-b border-medical-100 pb-4">
+                                                                <div className="w-12 h-12 bg-medical-500 text-white rounded-2xl flex items-center justify-center">
+                                                                    <Search className="w-6 h-6" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[9px] font-black text-medical-600 uppercase tracking-widest">Detail Insight</p>
+                                                                    <h4 className="text-xl font-black text-slate-900 uppercase italic leading-tight">{activeHotspot.label}</h4>
+                                                                </div>
+                                                                <button onClick={() => setActiveHotspot(null)} className="ml-auto text-slate-400 hover:text-red-500">
+                                                                    <X className="w-5 h-5" />
+                                                                </button>
+                                                            </div>
+
+                                                            <div className="grid gap-6 sm:grid-cols-3">
+                                                                <div className="space-y-2">
+                                                                    <p className="text-[8px] font-black text-medical-600 uppercase tracking-widest">Margdarshan (Guidance)</p>
+                                                                    <p className="text-[11px] font-bold text-slate-600 leading-relaxed italic">"{activeHotspot.guidance}"</p>
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <p className="text-[8px] font-black text-amber-600 uppercase tracking-widest">Problem Domain</p>
+                                                                    <p className="text-[11px] font-bold text-slate-600 leading-relaxed italic">{activeHotspot.problem}</p>
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">Clinical Solution</p>
+                                                                    <p className="text-[11px] font-bold text-slate-600 leading-relaxed italic">{activeHotspot.solution}</p>
+                                                                </div>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
 
                                                 <div>
                                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Suggested Next Steps</p>

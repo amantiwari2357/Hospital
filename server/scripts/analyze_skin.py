@@ -55,6 +55,72 @@ def detect_skin(img):
 
     return True, skin_percentage, "Skin detected", combined_mask
 
+def get_hotspots(img, mask_red, mask_brown, mask_white, laplacian_img):
+    hotspots = []
+    
+    # 1. Inflammation (Red Areas)
+    contours, _ = cv2.findContours(mask_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        best_c = max(contours, key=cv2.contourArea)
+        if cv2.contourArea(best_c) > 100:
+            M = cv2.moments(best_c)
+            if M["m00"] != 0:
+                cx = int(M["m10"] / M["m00"])
+                cy = int(M["m01"] / M["m00"])
+                hotspots.append({
+                    "x": round((cx / img.shape[1]) * 100, 1),
+                    "y": round((cy / img.shape[0]) * 100, 1),
+                    "label": "Localized Inflammation",
+                    "guidance": "Affected area shows active redness and irritation. Avoid scratching to prevent secondary infection.",
+                    "problem": "Active inflammatory phase possibly due to acne or acute dermatitis.",
+                    "solution": "Apply a soothing calamine lotion or a mild anti-inflammatory cream. Consult if heat persists."
+                })
+
+    # 2. Pigmentation (Brown Areas)
+    contours, _ = cv2.findContours(mask_brown, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        best_c = sorted(contours, key=cv2.contourArea, reverse=True)
+        for c in best_c[:1]: # Limit to top 1
+            if cv2.contourArea(c) > 50:
+                M = cv2.moments(c)
+                if M["m00"] != 0:
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    hotspots.append({
+                        "x": round((cx / img.shape[1]) * 100, 1),
+                        "y": round((cy / img.shape[0]) * 100, 1),
+                        "label": "Hyperpigmentation Cluster",
+                        "guidance": "Observe for changes in diameter or edge regularity over time.",
+                        "problem": "Localized melanin buildup or post-inflammatory marks.",
+                        "solution": "Use broad-spectrum sunscreen. If the spot is new or growing, seek a clinical audit."
+                    })
+
+    # 3. Texture/Scaling (Laplacian variance hotspots)
+    # Find area with highest texture variation
+    h, w = laplacian_img.shape
+    step_h, step_w = h // 4, w // 4
+    max_var = 0
+    best_loc = None
+    for i in range(4):
+        for j in range(4):
+            roi = laplacian_img[i*step_h:(i+1)*step_h, j*step_w:(j+1)*step_w]
+            var = np.var(roi)
+            if var > max_var:
+                max_var = var
+                best_loc = (j*step_w + step_w//2, i*step_h + step_h//2)
+    
+    if max_var > 150 and best_loc:
+        hotspots.append({
+            "x": round((best_loc[0] / w) * 100, 1),
+            "y": round((best_loc[1] / h) * 100, 1),
+            "label": "Texture Irregularity",
+            "guidance": "Scaling or dryness detected in this localized patch.",
+            "problem": "Indicative of psoriasis-like scaling or chronic xerosis.",
+            "solution": "Hydrate the area with a urea-based emollient. Avoid harsh soaps."
+        })
+
+    return hotspots
+
 def analyze_skin_features(img, skin_mask, real_diseases):
     if skin_mask is None:
         return {"error": "No skin mask"}
@@ -65,7 +131,10 @@ def analyze_skin_features(img, skin_mask, real_diseases):
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     skin_gray = cv2.bitwise_and(gray, skin_mask)
-    laplacian_var = cv2.Laplacian(skin_gray, cv2.CV_64F).var()
+    
+    # Textural Analysis
+    laplacian = cv2.Laplacian(skin_gray, cv2.CV_64F)
+    laplacian_var = laplacian.var()
     
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     
@@ -149,6 +218,9 @@ def analyze_skin_features(img, skin_mask, real_diseases):
     # Ensure all values are standard Python types for JSON serialization
     is_urgent = bool("Cancer" in best.get('name', '') or laplacian_var > 500)
     
+    # Generate Interactive Hotspots
+    hotspots = get_hotspots(img, mask_red, mask_brown, mask_white, laplacian)
+    
     return {
         "condition": best.get('name'),
         "severity": "High" if laplacian_var > 300 else "Moderate" if laplacian_var > 100 else "Mild",
@@ -166,7 +238,8 @@ def analyze_skin_features(img, skin_mask, real_diseases):
             "historical_boost": bool(best.get('name', '').lower() in confirmed_counts),
             "chat_awareness": bool(any(k in best.get('name', '').lower() for k in trending_keywords)),
             "confirmed_cases_in_system": confirmed_counts.get(best.get('name', '').lower(), 0)
-        }
+        },
+        "hotspots": hotspots
     }
 
 if __name__ == "__main__":
