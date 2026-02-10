@@ -22,8 +22,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Robust Preflight Handling
-app.options('(.*)', cors());
+// Robust Preflight Handling (Using Regex literal for compatibility)
+app.options(/(.*)/, cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
