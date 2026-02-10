@@ -53,8 +53,20 @@ const Home = () => {
                 ]);
                 const drData = await drRes.json();
                 const disData = await disRes.json();
-                setDynamicDoctors(drData);
-                setDynamicDiseases(disData);
+
+                // Defensive checks: only update state if we received an array
+                if (Array.isArray(drData)) {
+                    setDynamicDoctors(drData);
+                } else if (drData && Array.isArray(drData.doctors)) {
+                    // Fallback for different API response structure if any
+                    setDynamicDoctors(drData.doctors);
+                }
+
+                if (Array.isArray(disData)) {
+                    setDynamicDiseases(disData);
+                } else {
+                    console.warn('Diseases API did not return an array:', disData);
+                }
             } catch (error) {
                 console.error('Error fetching home data:', error);
             } finally {

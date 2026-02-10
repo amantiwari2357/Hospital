@@ -6,6 +6,10 @@ const notFound = (req, res, next) => {
 
 const errorHandler = (err, req, res, next) => {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+
+    // CRITICAL: Log error for production debugging
+    console.error(`[Server Error] ${req.method} ${req.url}:`, err.stack || err.message);
+
     res.status(statusCode);
     res.json({
         message: err.message,
