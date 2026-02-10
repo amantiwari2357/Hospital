@@ -11,18 +11,30 @@ const app = express();
 
 const checkDbConnection = require('./middleware/dbCheckMiddleware');
 
-// Simplified Permissive CORS (Production-Ready for multi-origin hospital apps)
+// Production-Grade CORS Configuration
+const allowedOrigins = [
+    'https://hospital-40m0.onrender.com', // Production Website
+    'http://localhost:5173',               // Local Development (Vite)
+    'http://localhost:3000'                // Alternative Local Port
+];
+
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow any origin that's present (or null for local tests)
-        callback(null, true);
+        // Allow server-to-server or tools like Postman (no origin)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS Policy: Origin not allowed'), false);
+        }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Robust Preflight Handling (Using Regex literal for compatibility)
+// Robust Preflight Handling (Using Regex literal for modern Express compatibility)
 app.options(/(.*)/, cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
