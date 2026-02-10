@@ -3,44 +3,38 @@ import json
 import random
 import mediapipe as mp
 
-# --- MediaPipe Ultra-Robust Initialization ---
+# --- MediaPipe Optimized Initialization ---
 import sys
 
-# Trick to force deeper registration of submodules
 try:
+    # Direct solution import is most reliable for missing namespace attributes
     import mediapipe as mp
-    import mediapipe.python.solutions.face_mesh as mp_face_mesh
-    face_mesh = mp_face_mesh.FaceMesh(
+    from mediapipe.solutions import face_mesh as mp_fm
+    
+    face_mesh = mp_fm.FaceMesh(
         static_image_mode=True,
         max_num_faces=1,
         refine_landmarks=True,
         min_detection_confidence=0.5
     )
-except Exception:
+except Exception as e:
+    # Last resort fallback with diagnostic info
     try:
-        # Emergency hack for broken namespaces
-        import mediapipe as mp
-        from mediapipe.python.solutions import face_mesh as fm
-        face_mesh = fm.FaceMesh(
+        import mediapipe.python.solutions.face_mesh as mp_fm_alt
+        face_mesh = mp_fm_alt.FaceMesh(
             static_image_mode=True,
             max_num_faces=1,
             refine_landmarks=True,
             min_detection_confidence=0.5
         )
-    except Exception as final_e:
-        # Final attempt: direct path injection if necessary
-        # Most likely error is AttributeError on 'mp.solutions'
-        import mediapipe as mp
-        try:
-            face_mesh = mp.solutions.face_mesh.FaceMesh(
-                static_image_mode=True,
-                max_num_faces=1,
-                refine_landmarks=True,
-                min_detection_confidence=0.5
-            )
-        except AttributeError:
-             print(json.dumps({"error": "MediaPipe namespace error", "details": str(final_e)}))
-             sys.exit(1)
+    except Exception as e2:
+        print(json.dumps({
+            "error": "MediaPipe Initialization Failed",
+            "details": f"Attempt 1: {str(e)} | Attempt 2: {str(e2)}",
+            "python_version": sys.version,
+            "path": sys.path
+        }))
+        sys.exit(1)
 import base64
 import numpy as np
 import cv2
