@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import MobileSearchOverlay from '../shared/MobileSearchOverlay';
 import {
     Menu, X, Phone, HeartPulse, User, ShoppingBag, Search,
     ShieldAlert, ChevronRight, Activity, ArrowRight, BookOpen,
@@ -20,6 +21,7 @@ const Navbar = () => {
     const [activeMegaMenu, setActiveMegaMenu] = useState(null);
     const [isHoveringMenu, setIsHoveringMenu] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     const location = useLocation();
     const tabsRef = useRef(null);
@@ -110,6 +112,15 @@ const Navbar = () => {
                         </span>
                     </Link>
 
+                    {/* Mobile Search Bar Trigger (Visible on small screens) */}
+                    <div
+                        onClick={() => setIsSearchOpen(true)}
+                        className="lg:hidden flex-grow mx-2 bg-slate-50 rounded-full py-2 px-3 flex items-center gap-2 text-slate-400 text-xs font-bold italic active:scale-95 transition-transform"
+                    >
+                        <Search className="w-3.5 h-3.5" />
+                        <span>Search...</span>
+                    </div>
+
                     <div className="hidden lg:flex flex-grow max-w-xl relative group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-medical-600 transition-colors" />
                         <input
@@ -120,6 +131,8 @@ const Navbar = () => {
                     </div>
 
                     <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+
+
                         <Link to="/emergency" className="hidden sm:flex bg-red-600 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all gap-2 items-center shadow-lg shadow-red-100">
                             <ShieldAlert className="w-4 h-4 animate-pulse" />
                             EMERGENCY
@@ -340,6 +353,8 @@ const Navbar = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <MobileSearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </header>
     );
 };
