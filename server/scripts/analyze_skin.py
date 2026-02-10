@@ -1,27 +1,31 @@
 import sys
+import os
 import json
 import random
 import mediapipe as mp
 
 # --- MediaPipe Optimized Initialization ---
 import sys
+import logging
+
+# Silence Matplotlib font cache messages
+logging.getLogger('matplotlib.font_manager').disabled = True
+os.environ['MPLBACKEND'] = 'Agg' # Use non-interactive backend
 
 try:
-    # Direct solution import is most reliable for missing namespace attributes
-    import mediapipe as mp
-    from mediapipe.solutions import face_mesh as mp_fm
-    
+    # Direct solution import is the most resilient for cloud environments
+    import mediapipe.python.solutions.face_mesh as mp_fm
     face_mesh = mp_fm.FaceMesh(
         static_image_mode=True,
         max_num_faces=1,
         refine_landmarks=True,
         min_detection_confidence=0.5
     )
-except Exception as e:
-    # Last resort fallback with diagnostic info
+except (ImportError, AttributeError) as e:
     try:
-        import mediapipe.python.solutions.face_mesh as mp_fm_alt
-        face_mesh = mp_fm_alt.FaceMesh(
+        # Fallback to solutions attribute if direct fails
+        import mediapipe as mp
+        face_mesh = mp.solutions.face_mesh.FaceMesh(
             static_image_mode=True,
             max_num_faces=1,
             refine_landmarks=True,

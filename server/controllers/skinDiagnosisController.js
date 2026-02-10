@@ -44,12 +44,17 @@ const analyzeSkin = async (req, res) => {
             });
         });
 
-        // 3. Trigger Analysis
+        // 3. Trigger Analysis (Use python3 for Linux/Render compatibility)
         const scriptPath = path.join(__dirname, '../scripts/analyze_skin.py');
-        const pythonProcess = spawn('python', [scriptPath]);
+        const pythonProcess = spawn('python3', [scriptPath]);
 
         let resultData = '';
         let errorData = '';
+
+        // Handle pipe errors (prevent EPIPE crash if Python fails early)
+        pythonProcess.stdin.on('error', (err) => {
+            console.error('Python Stdin Pipe Error:', err.message);
+        });
 
         pythonProcess.stdin.write(JSON.stringify({
             image,
