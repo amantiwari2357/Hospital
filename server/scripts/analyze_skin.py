@@ -13,8 +13,8 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 os.environ['MPLBACKEND'] = 'Agg' # Use non-interactive backend
 
 try:
-    # Direct solution import is the most resilient for cloud environments
-    import mediapipe.python.solutions.face_mesh as mp_fm
+    # Standard solution import
+    import mediapipe.solutions.face_mesh as mp_fm
     face_mesh = mp_fm.FaceMesh(
         static_image_mode=True,
         max_num_faces=1,
@@ -23,9 +23,10 @@ try:
     )
 except (ImportError, AttributeError) as e:
     try:
-        # Fallback to solutions attribute if direct fails
+        # Fallback for older or specific structures
         import mediapipe as mp
-        face_mesh = mp.solutions.face_mesh.FaceMesh(
+        from mediapipe.python.solutions import face_mesh as mp_fm_alt
+        face_mesh = mp_fm_alt.FaceMesh(
             static_image_mode=True,
             max_num_faces=1,
             refine_landmarks=True,

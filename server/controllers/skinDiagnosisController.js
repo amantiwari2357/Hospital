@@ -46,7 +46,13 @@ const analyzeSkin = async (req, res) => {
 
         // 3. Trigger Analysis (Use python3 for Linux/Render compatibility)
         const scriptPath = path.join(__dirname, '../scripts/analyze_skin.py');
-        const pythonProcess = spawn('python3', [scriptPath]);
+        const pythonProcess = spawn('python3', [scriptPath], {
+            env: {
+                ...process.env,
+                MPLCONFIGDIR: '/tmp', // Ensure matplotlib has a writable cache
+                PYTHONUNBUFFERED: '1'
+            }
+        });
 
         let resultData = '';
         let errorData = '';
@@ -68,14 +74,38 @@ const analyzeSkin = async (req, res) => {
         pythonProcess.stderr.on('data', (data) => errorData += data.toString());
 
         pythonProcess.on('close', async (code) => {
-            if (code !== 0) {
-                console.error(`AI Analysis Failed (Code ${code}):`, errorData);
-                diagnosis.status = 'Failed';
-                await diagnosis.save();
-                return res.status(500).json({ message: 'AI Engine Error', error: errorData });
+            // Filter out purely informational messages from stderr
+            const filteredError = errorData
+                .split('\n')
+                .filter(line => {
+                    const isInfo = line.includes('Matplotlib is building the font cache') ||
+                        line.includes('Moment');
+                    return line.trim() !== '' && !isInfo;
+                })
+                .join('\n')
+                .trim();
+
+            if (code !== 0 || filteredError) {
+                console.error(`AI Analysis Ended (Code ${code}):`, filteredError || errorData);
+
+                // If we got valid result despite stderr noise, we might want to proceed
+                // But if code is non-zero, it likely failed.
+                if (code !== 0) {
+                    diagnosis.status = 'Failed';
+                    await diagnosis.save();
+                    return res.status(500).json({
+                        message: 'AI Engine Error',
+                        error: filteredError || 'Process exited unexpectedly'
+                    });
+                }
             }
 
             try {
+                // If stdout is empty but we reached here, it's also an error
+                if (!resultData.trim()) {
+                    throw new Error('No output from AI engine');
+                }
+
                 const analysisResult = JSON.parse(resultData);
 
                 if (analysisResult.error) {
