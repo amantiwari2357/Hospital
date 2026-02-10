@@ -267,7 +267,11 @@ const SkinAIDiagnosisManager = () => {
                                                             <div className="relative flex items-center">
                                                                 <button
                                                                     onClick={() => setActiveHotspot(hotspot)}
-                                                                    className={`w-6 h-6 rounded-full border border-white shadow-lg flex items-center justify-center transition-all ${activeHotspot === hotspot ? 'scale-125' : ''} ${markerColor}`}
+                                                                    className={`rounded-full border border-white shadow-lg flex items-center justify-center transition-all ${activeHotspot === hotspot ? 'scale-125' : ''} ${markerColor}`}
+                                                                    style={{
+                                                                        width: `${24 * (hotspot.intensity || 0.9)}px`,
+                                                                        height: `${24 * (hotspot.intensity || 0.9)}px`
+                                                                    }}
                                                                 >
                                                                     <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                                                                 </button>
@@ -276,7 +280,10 @@ const SkinAIDiagnosisManager = () => {
                                                                         {hotspot.label}
                                                                     </span>
                                                                 </div>
-                                                                <div className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-20 scale-[2.5]`} />
+                                                                <div
+                                                                    className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-20`}
+                                                                    style={{ transform: `scale(${2.5 * (hotspot.intensity || 0.8)})` }}
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
