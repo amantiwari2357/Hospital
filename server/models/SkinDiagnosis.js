@@ -18,7 +18,8 @@ const skinDiagnosisSchema = mongoose.Schema({
         description: { type: String },
         suggestions: [{ type: String }],
         isUrgent: { type: Boolean, default: false },
-        medical_metrics: { type: Object } // Store raw metrics for training
+        medical_metrics: { type: Object }, // Store raw metrics for training
+        hotspots: { type: Array }
     },
     doctorVerdict: {
         condition: { type: String },

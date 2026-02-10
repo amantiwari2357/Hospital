@@ -61,27 +61,9 @@ def get_hotspots(img, mask_red, mask_brown, mask_white, laplacian_img):
     # 1. Inflammation (Red Areas)
     contours, _ = cv2.findContours(mask_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
-        best_c = max(contours, key=cv2.contourArea)
-        if cv2.contourArea(best_c) > 100:
-            M = cv2.moments(best_c)
-            if M["m00"] != 0:
-                cx = int(M["m10"] / M["m00"])
-                cy = int(M["m01"] / M["m00"])
-                hotspots.append({
-                    "x": round((cx / img.shape[1]) * 100, 1),
-                    "y": round((cy / img.shape[0]) * 100, 1),
-                    "label": "Localized Inflammation",
-                    "guidance": "Affected area shows active redness and irritation. Avoid scratching to prevent secondary infection.",
-                    "problem": "Active inflammatory phase possibly due to acne or acute dermatitis.",
-                    "solution": "Apply a soothing calamine lotion or a mild anti-inflammatory cream. Consult if heat persists."
-                })
-
-    # 2. Pigmentation (Brown Areas)
-    contours, _ = cv2.findContours(mask_brown, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if contours:
         best_c = sorted(contours, key=cv2.contourArea, reverse=True)
-        for c in best_c[:1]: # Limit to top 1
-            if cv2.contourArea(c) > 50:
+        for c in best_c[:2]: # Top 2 inflamed spots
+            if cv2.contourArea(c) > 40: # Lowered from 100
                 M = cv2.moments(c)
                 if M["m00"] != 0:
                     cx = int(M["m10"] / M["m00"])
@@ -89,34 +71,65 @@ def get_hotspots(img, mask_red, mask_brown, mask_white, laplacian_img):
                     hotspots.append({
                         "x": round((cx / img.shape[1]) * 100, 1),
                         "y": round((cy / img.shape[0]) * 100, 1),
-                        "label": "Hyperpigmentation Cluster",
+                        "label": "Inflammation Patch",
+                        "guidance": "Affected area shows active redness and irritation. Avoid scratching to prevent secondary infection.",
+                        "problem": "Active inflammatory phase possibly due to acne or acute dermatitis.",
+                        "solution": "Apply a soothing calamine lotion or a mild anti-inflammatory cream. Consult if heat persists."
+                    })
+
+    # 2. Pigmentation (Brown Areas)
+    contours, _ = cv2.findContours(mask_brown, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        best_c = sorted(contours, key=cv2.contourArea, reverse=True)
+        for c in best_c[:2]: # Top 2 brown spots
+            if cv2.contourArea(c) > 30: # Lowered from 50
+                M = cv2.moments(c)
+                if M["m00"] != 0:
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    hotspots.append({
+                        "x": round((cx / img.shape[1]) * 100, 1),
+                        "y": round((cy / img.shape[0]) * 100, 1),
+                        "label": "Hyperpigmentation",
                         "guidance": "Observe for changes in diameter or edge regularity over time.",
                         "problem": "Localized melanin buildup or post-inflammatory marks.",
                         "solution": "Use broad-spectrum sunscreen. If the spot is new or growing, seek a clinical audit."
                     })
 
     # 3. Texture/Scaling (Laplacian variance hotspots)
-    # Find area with highest texture variation
     h, w = laplacian_img.shape
     step_h, step_w = h // 4, w // 4
-    max_var = 0
-    best_loc = None
     for i in range(4):
         for j in range(4):
             roi = laplacian_img[i*step_h:(i+1)*step_h, j*step_w:(j+1)*step_w]
             var = np.var(roi)
-            if var > max_var:
-                max_var = var
-                best_loc = (j*step_w + step_w//2, i*step_h + step_h//2)
-    
-    if max_var > 150 and best_loc:
+            if var > 200: # Lower threshold for texture detection
+                hotspots.append({
+                    "x": round(((j*step_w + step_w//2) / w) * 100, 1),
+                    "y": round(((i*step_h + step_h//2) / h) * 100, 1),
+                    "label": "Texture Irregularity",
+                    "guidance": "Scaling or dryness detected in this localized patch.",
+                    "problem": "Indicative of psoriasis-like scaling or chronic xerosis.",
+                    "solution": "Hydrate the area with a urea-based emollient. Avoid harsh soaps."
+                })
+
+    # 4. Fallback: General Skin Health (If no specific symptoms detected)
+    if not hotspots:
+        # Find the center of the skin mask
+        M = cv2.moments(mask_red | mask_brown | mask_white) # Use any mask or just a center point
+        if M["m00"] != 0:
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+        else:
+            cx, cy = w // 2, h // 2
+            
         hotspots.append({
-            "x": round((best_loc[0] / w) * 100, 1),
-            "y": round((best_loc[1] / h) * 100, 1),
-            "label": "Texture Irregularity",
-            "guidance": "Scaling or dryness detected in this localized patch.",
-            "problem": "Indicative of psoriasis-like scaling or chronic xerosis.",
-            "solution": "Hydrate the area with a urea-based emollient. Avoid harsh soaps."
+            "x": round((cx / w) * 100, 1),
+            "y": round((cy / h) * 100, 1),
+            "label": "Core Assessment Area",
+            "guidance": "No major localized pathologies detected. Maintain standard skincare routine.",
+            "problem": "General skin surfaces appear within clinical baseline.",
+            "solution": "Use a daily moisturizer and SPF30+. Stay hydrated and monitor for new spots."
         })
 
     return hotspots
@@ -269,13 +282,11 @@ if __name__ == "__main__":
 
         res = analyze_skin_features(img, mask, real_diseases)
         
-        # Combine and ensure everything is JSON-safe
+        # Ensure result is flat for the Node controller to store in diagnosis.aiAnalysis
         final_output = {
+            **res,
             "success": True, 
-            "aiAnalysis": {
-                **res, 
-                "skinPercentage": f"{round(float(skin_p), 1)}%"
-            }
+            "skinPercentage": f"{round(float(skin_p), 1)}%"
         }
         print(json.dumps(final_output))
         

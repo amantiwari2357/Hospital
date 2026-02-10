@@ -14,6 +14,7 @@ import {
     Download,
     Send,
     ArrowLeft,
+    ArrowRight,
     TrendingUp,
     Activity,
     Shield,
@@ -29,6 +30,7 @@ const SkinAIDiagnosisManager = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [diagnoses, setDiagnoses] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeHotspot, setActiveHotspot] = useState(null);
     const [verdict, setVerdict] = useState({ condition: '', isConfirmed: false, finalNotes: '' });
     const [chatOpen, setChatOpen] = useState(false);
     const [quickView, setQuickView] = useState(null);
@@ -68,7 +70,8 @@ const SkinAIDiagnosisManager = () => {
                     recommendations: d.aiAnalysis?.suggestions || [],
                     aiNotes: 'AI analysis completed.',
                     followupRequired: d.aiAnalysis?.isUrgent || false,
-                    interactions: d.interactions || []
+                    interactions: d.interactions || [],
+                    hotspots: d.aiAnalysis?.hotspots || []
                 }));
                 setDiagnoses(formattedData);
             }
@@ -220,15 +223,35 @@ const SkinAIDiagnosisManager = () => {
                                 <h4 className="text-sm font-black uppercase tracking-widest text-gray-900 mb-6">Submitted Image</h4>
                                 <div className="aspect-square bg-gray-100 rounded-[2rem] mb-6 flex items-center justify-center border-2 border-dashed border-gray-200 overflow-hidden">
                                     {currentDiagnosis.imageUrl ? (
-                                        <img
-                                            src={currentDiagnosis.imageUrl}
-                                            alt="Diagnostic"
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = ''; // Clear source to show placeholder
-                                            }}
-                                        />
+                                        <div className="relative w-full h-full bg-slate-900 flex items-center justify-center">
+                                            <img
+                                                src={currentDiagnosis.imageUrl}
+                                                alt="Diagnostic"
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = '';
+                                                }}
+                                            />
+                                            {/* Hotspot Overlay for Doctors */}
+                                            {Array.isArray(currentDiagnosis.hotspots) && currentDiagnosis.hotspots.map((hotspot, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="absolute z-10 group"
+                                                    style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, transform: 'translate(-50%, -50%)' }}
+                                                >
+                                                    <button
+                                                        onClick={() => setActiveHotspot(hotspot)}
+                                                        className={`w-6 h-6 rounded-full border border-white shadow-lg flex items-center justify-center transition-all animate-pulse ${activeHotspot === hotspot ? 'bg-purple-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+                                                    >
+                                                        <ArrowRight className="w-3 h-3 text-white transform rotate-[-45deg]" />
+                                                    </button>
+                                                    <div className="absolute top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {hotspot.label}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     ) : (
                                         <ImageIcon className="w-16 h-16 text-gray-300" />
                                     )}
@@ -248,6 +271,27 @@ const SkinAIDiagnosisManager = () => {
                                         </span>
                                     </div>
                                 </div>
+
+                                {/* Hotspot Detail Card for Doctors */}
+                                {activeHotspot && (
+                                    <div className="mt-4 p-4 bg-purple-50 border border-purple-100 rounded-2xl">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <p className="text-[9px] font-black text-purple-600 uppercase tracking-widest">AI Detection Detail</p>
+                                            <button onClick={() => setActiveHotspot(null)}>
+                                                <Clock className="w-3 h-3 text-gray-400" />
+                                            </button>
+                                        </div>
+                                        <h5 className="text-sm font-black text-gray-900 mb-2">{activeHotspot.label}</h5>
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] text-gray-600 leading-relaxed italic border-l-2 border-purple-200 pl-3">
+                                                <strong>Guidance:</strong> {activeHotspot.guidance}
+                                            </p>
+                                            <p className="text-[10px] text-gray-600 leading-relaxed italic border-l-2 border-purple-200 pl-3">
+                                                <strong>Clinical Context:</strong> {activeHotspot.problem}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-[2.5rem] shadow-sm p-8 text-white">
