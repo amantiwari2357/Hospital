@@ -11,7 +11,29 @@ const app = express();
 
 const checkDbConnection = require('./middleware/dbCheckMiddleware');
 
-app.use(cors());
+// Hardened CORS for Production & Development
+const whiteList = [
+    'https://hospital-mahan.netlify.app',
+    'https://hospital-40m0.onrender.com',
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || whiteList.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.warn(`CORS blocked for origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -49,7 +71,16 @@ app.use('/api/skin-diagnosis', skinDiagnosisRoutes);
 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 app.use(notFound);
-app.use(errorHandler);
+
+// Final Error Handler with CORS explicit header
+app.use((err, req, res, next) => {
+    // Ensure CORS headers are present even in error state
+    const origin = req.headers.origin;
+    if (origin && whiteList.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    errorHandler(err, req, res, next);
+});
 
 const PORT = process.env.PORT || 5000;
 

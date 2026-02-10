@@ -127,8 +127,13 @@ const SkinAI = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setResult(data.aiAnalysis);
-                setDiagnosisId(data._id); // Store ID for later update
+                const analysisResult = data.aiAnalysis || {};
+                setResult({
+                    ...analysisResult,
+                    hotspots: analysisResult.hotspots || [],
+                    suggestions: analysisResult.suggestions || []
+                });
+                setDiagnosisId(data._id);
             } else {
                 console.error("Analysis failed:", data.error || data.message);
                 setResult({
@@ -154,7 +159,8 @@ const SkinAI = () => {
                 severity: 'Unknown',
                 description: 'Could not connect to the analysis server.',
                 suggestions: [],
-                isUrgent: false
+                isUrgent: false,
+                isError: true
             });
         } finally {
             setIsAnalyzing(false);
