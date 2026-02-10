@@ -1,5 +1,6 @@
 ﻿import { User, Mail, Phone, Hash, Tag, X, FileText, Globe, Linkedin, Twitter, Facebook } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
 const ProfileForm = ({ data, onChange }) => {
     // Local state for tags input handling
@@ -34,6 +35,18 @@ const ProfileForm = ({ data, onChange }) => {
         onChange({ tags: tags.filter(tag => tag !== tagToRemove) });
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                onChange({ image: reader.result });
+                toast.success("Profile photo updated");
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 h-full">
             <h3 className="text-lg font-bold text-gray-900 mb-8">Personal Information</h3>
@@ -46,11 +59,18 @@ const ProfileForm = ({ data, onChange }) => {
                         alt={data?.name || "Dr. User"}
                         className="w-32 h-32 rounded-full border-4 border-blue-50 object-cover shadow-sm"
                     />
-                    <button className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full text-white shadow-lg hover:bg-blue-700 transition-all border-4 border-white">
+                    <label htmlFor="photo-upload" className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full text-white shadow-lg hover:bg-blue-700 transition-all border-4 border-white cursor-pointer">
                         <User className="w-4 h-4" />
-                    </button>
+                    </label>
+                    <input
+                        type="file"
+                        id="photo-upload"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageChange}
+                    />
                 </div>
-                <button className="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700">Change Profile Photo</button>
+                <label htmlFor="photo-upload" className="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700 cursor-pointer">Change Profile Photo</label>
             </div>
 
             <div className="space-y-6">

@@ -1,17 +1,29 @@
 ﻿import { Clock, Plus, Copy, X } from 'lucide-react';
 import { useState } from 'react';
 
-const DaySchedule = ({ day, slots, onAddSlot, onRemoveSlot }) => (
+const DaySchedule = ({ day, slots, onAddSlot, onRemoveSlot, onUpdateSlot }) => (
     <div className="py-6 border-b border-gray-50 last:border-0">
         <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-bold text-gray-900 w-12">{day}</span>
             <div className="flex-1 flex flex-wrap gap-3 px-4">
                 {slots && slots.length > 0 ? (
                     slots.map((slot, index) => (
-                        <div key={index} className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-xl group cursor-pointer hover:bg-blue-100 transition-all relative">
-                            <Clock className="w-3.5 h-3.5 text-blue-600" />
-                            <span className="text-xs font-bold text-blue-600 whitespace-nowrap">{slot.time}</span>
-                            <span className="text-[10px] text-blue-400 hidden group-hover:block ml-1">{slot.label}</span>
+                        <div key={index} className="flex flex-col gap-1 px-3 py-2 bg-blue-50 border border-blue-100 rounded-xl group hover:bg-blue-100 transition-all relative min-w-[180px]">
+                            <div className="flex items-center gap-2">
+                                <Clock className="w-3.5 h-3.5 text-blue-600" />
+                                <input
+                                    type="text"
+                                    value={slot.time}
+                                    onChange={(e) => onUpdateSlot(index, { ...slot, time: e.target.value })}
+                                    className="text-xs font-bold text-blue-600 bg-transparent border-none focus:outline-none focus:ring-0 w-full p-0"
+                                />
+                            </div>
+                            <input
+                                type="text"
+                                value={slot.label}
+                                onChange={(e) => onUpdateSlot(index, { ...slot, label: e.target.value })}
+                                className="text-[10px] text-blue-400 bg-transparent border-none focus:outline-none focus:ring-0 w-full p-0"
+                            />
                             <button
                                 onClick={() => onRemoveSlot(index)}
                                 className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -34,7 +46,7 @@ const DaySchedule = ({ day, slots, onAddSlot, onRemoveSlot }) => (
                 {slots && slots.length > 0 && (
                     <button
                         onClick={onAddSlot}
-                        className="p-2 bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
+                        className="p-2 bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all h-fit self-center"
                     >
                         <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -72,6 +84,16 @@ const WeeklySchedule = ({ schedule = [], onChange }) => {
 
         // Filter out empty days on save? Or keep structure?
         // Let's keep structure to be safe.
+        onChange(newSchedule);
+    };
+
+    const handleUpdateSlot = (dayIndex, slotIndex, updatedSlot) => {
+        const newSchedule = [...displaySchedule];
+        const day = newSchedule[dayIndex];
+        const newSlots = [...day.slots];
+        newSlots[slotIndex] = updatedSlot;
+
+        newSchedule[dayIndex] = { ...day, slots: newSlots };
         onChange(newSchedule);
     };
 
@@ -126,6 +148,7 @@ const WeeklySchedule = ({ schedule = [], onChange }) => {
                         {...dayInfo}
                         onAddSlot={() => handleAddSlot(i)}
                         onRemoveSlot={(slotIndex) => handleRemoveSlot(i, slotIndex)}
+                        onUpdateSlot={(slotIndex, updatedSlot) => handleUpdateSlot(i, slotIndex, updatedSlot)}
                     />
                 ))}
             </div>
