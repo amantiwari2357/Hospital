@@ -57,18 +57,40 @@ const analyzeSkin = async (req, res) => {
         let resultData = '';
         let errorData = '';
 
-        // Handle pipe errors (prevent EPIPE crash if Python fails early)
-        pythonProcess.stdin.on('error', (err) => {
-            console.error('Python Stdin Pipe Error:', err.message);
+        // --- CRITICAL ERROR HANDLING (Layer 7) ---
+        // Catch spawn errors (e.g. python3 not found)
+        pythonProcess.on('error', (err) => {
+            console.error('Python Process Spawn Error:', err.message);
         });
 
-        pythonProcess.stdin.write(JSON.stringify({
-            image,
-            realDiseases,
-            historicalData: confirmedHistory,
-            chatTrends: chatTrends.slice(-30)
-        }));
-        pythonProcess.stdin.end();
+        // Catch stream errors individually to prevent unhandled 'error' event crash
+        if (pythonProcess.stdin) {
+            pythonProcess.stdin.on('error', (err) => {
+                if (err.code === 'EPIPE') {
+                    console.warn('Python Stdin Pipe closed early (EPIPE) - process likely failed during initialization.');
+                } else {
+                    console.error('Python Stdin Pipe Error:', err.message);
+                }
+            });
+        }
+
+        if (pythonProcess.stdout) pythonProcess.stdout.on('error', (err) => console.error('Stdout Error:', err.message));
+        if (pythonProcess.stderr) pythonProcess.stderr.on('error', (err) => console.error('Stderr Error:', err.message));
+
+        // Safely write to stdin
+        if (pythonProcess.stdin && pythonProcess.stdin.writable) {
+            try {
+                pythonProcess.stdin.write(JSON.stringify({
+                    image,
+                    realDiseases,
+                    historicalData: confirmedHistory,
+                    chatTrends: chatTrends.slice(-30)
+                }));
+                pythonProcess.stdin.end();
+            } catch (stdinErr) {
+                console.error('Synchronous Stdin Write Failure:', stdinErr.message);
+            }
+        }
 
         pythonProcess.stdout.on('data', (data) => resultData += data.toString());
         pythonProcess.stderr.on('data', (data) => errorData += data.toString());

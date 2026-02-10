@@ -2,8 +2,6 @@ import sys
 import os
 import json
 import random
-import mediapipe as mp
-
 # --- MediaPipe Optimized Initialization ---
 import sys
 import logging
@@ -14,6 +12,7 @@ os.environ['MPLBACKEND'] = 'Agg' # Use non-interactive backend
 
 try:
     # Standard solution import
+    import mediapipe as mp
     import mediapipe.solutions.face_mesh as mp_fm
     face_mesh = mp_fm.FaceMesh(
         static_image_mode=True,
