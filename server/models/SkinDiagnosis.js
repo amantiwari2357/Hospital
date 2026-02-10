@@ -17,9 +17,20 @@ const skinDiagnosisSchema = mongoose.Schema({
         severity: { type: String }, // Mild, Moderate, Severe
         description: { type: String },
         suggestions: [{ type: String }],
-        isUrgent: { type: Boolean, default: false }
+        isUrgent: { type: Boolean, default: false },
+        medical_metrics: { type: Object } // Store raw metrics for training
     },
-    doctorNotes: { type: String },
+    doctorVerdict: {
+        condition: { type: String },
+        isConfirmed: { type: Boolean, default: false },
+        actualSeverity: { type: String },
+        finalNotes: { type: String }
+    },
+    interactions: [{
+        sender: { type: String, enum: ['Doctor', 'Patient', 'AI'] },
+        message: { type: String },
+        timestamp: { type: Date, default: Date.now }
+    }],
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     reviewedAt: { type: Date }
 }, {

@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { analyzeSkin, getAllDiagnoses, updateDiagnosisStatus } = require('../controllers/skinDiagnosisController');
+const { analyzeSkin, getDiagnoses, updateDiagnosis } = require('../controllers/skinDiagnosisController');
 const { protect } = require('../middleware/authMiddleware');
 
-// Public route for analysis and updating (consultation request)
+// Public route for analysis
 router.post('/analyze', analyzeSkin);
-router.put('/:id', updateDiagnosisStatus);
 
 // Protected routes for CRM management
-router.get('/', protect, getAllDiagnoses);
+router.route('/').get(protect, getDiagnoses);
+router.route('/:id').put(protect, updateDiagnosis);
 
 module.exports = router;

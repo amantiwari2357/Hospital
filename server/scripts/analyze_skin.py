@@ -89,16 +89,46 @@ def analyze_skin_features(img, skin_mask, real_diseases):
     if brown_p > 1.2 and brown_p > red_p: dom = "brown"
     if white_p > 1.2 and white_p > max(red_p, brown_p): dom = "white"
 
+    # --- Learning Loop: Reinforcement Scoring ---
+    historical_data = data.get("historicalData", [])
+    chat_trends = data.get("chatTrends", [])
+    
+    # Calculate Frequency of Confirmed Diagnoses
+    confirmed_counts = {}
+    for d in historical_data:
+        cond = d.get('doctorVerdict', {}).get('condition') or d.get('aiAnalysis', {}).get('condition')
+        if cond:
+            confirmed_counts[cond.lower()] = confirmed_counts.get(cond.lower(), 0) + 1
+            
+    # Keyphrase extraction from Chat Trends
+    trending_keywords = []
+    if chat_trends:
+        trending_text = " ".join(chat_trends).lower()
+        trending_keywords = [w for w in ["acne", "psoriasis", "melanoma", "eczema", "fungal", "allergy"] if w in trending_text]
+
     scored = []
     if real_diseases:
         for d in real_diseases:
             if not isinstance(d, dict): continue
             name = d.get('name', '').lower()
             score = 0
+            
+            # 1. Computer Vision Match (Primary)
             if dom == "red" and any(w in name for w in ['acne', 'pimple', 'eczema', 'rosacea']): score += 50
             elif dom == "brown" and any(w in name for w in ['melanoma', 'cancer', 'mole']): score += 50
             elif dom == "white" and any(w in name for w in ['vitiligo', 'fungal']): score += 50
             if laplacian_var > 80 and any(w in name for w in ['psoriasis', 'eczema']): score += 20
+            
+            # 2. Historical Reinforcement (Learning)
+            if name in confirmed_counts:
+                # Boost based on hospital frequency (up to +30 points)
+                boost = min(confirmed_counts[name] * 5, 30)
+                score += boost
+                
+            # 3. Chat Trend Awareness
+            if any(k in name for k in trending_keywords):
+                score += 15 # "Clinical chatter" boost
+                
             scored.append((score, d))
 
     scored.sort(key=lambda x: x[0], reverse=True)
@@ -131,6 +161,11 @@ def analyze_skin_features(img, skin_mask, real_diseases):
             "inflammation_score": f"{round(float(red_p), 1)}%",
             "pigment_score": f"{round(float(brown_p), 1)}%",
             "color_loss_score": f"{round(float(white_p), 1)}%"
+        },
+        "learning_context": {
+            "historical_boost": bool(best.get('name', '').lower() in confirmed_counts),
+            "chat_awareness": bool(any(k in best.get('name', '').lower() for k in trending_keywords)),
+            "confirmed_cases_in_system": confirmed_counts.get(best.get('name', '').lower(), 0)
         }
     }
 
