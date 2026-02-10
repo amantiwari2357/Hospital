@@ -93,7 +93,7 @@ const SkinAI = () => {
         setDiagnosisId(null);
 
         try {
-            const response = await fetch('http://localhost:5000/api/skin-diagnosis/analyze', {
+            const response = await fetch('https://bcrm.100acress.com/api/skin-diagnosis/analyze', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -143,7 +143,7 @@ const SkinAI = () => {
 
         setIsSubmittingConsultation(true);
         try {
-            const response = await fetch(`http://localhost:5000/api/skin-diagnosis/${diagnosisId}`, {
+            const response = await fetch(`https://bcrm.100acress.com/api/skin-diagnosis/${diagnosisId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'

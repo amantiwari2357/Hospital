@@ -39,7 +39,7 @@ const SkinAIDiagnosisManager = () => {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
             if (!userInfo || !userInfo.token) return;
 
-            const response = await fetch('http://localhost:5000/api/skin-diagnosis', {
+            const response = await fetch('https://bcrm.100acress.com/api/skin-diagnosis', {
                 headers: { Authorization: `Bearer ${userInfo.token}` }
             });
             const data = await response.json();
@@ -76,7 +76,7 @@ const SkinAIDiagnosisManager = () => {
     const handleSubmitVerdict = async () => {
         try {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            const response = await fetch(`http://localhost:5000/api/skin-diagnosis/${selectedDiagnosis}`, {
+            const response = await fetch(`https://bcrm.100acress.com/api/skin-diagnosis/${selectedDiagnosis}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ const SkinAIDiagnosisManager = () => {
         if (!newMessage.trim()) return;
         try {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            const response = await fetch(`http://localhost:5000/api/skin-diagnosis/${selectedDiagnosis}`, {
+            const response = await fetch(`https://bcrm.100acress.com/api/skin-diagnosis/${selectedDiagnosis}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
