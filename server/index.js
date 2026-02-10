@@ -29,6 +29,8 @@ const statsRoutes = require('./routes/statsRoutes');
 const patientPortalRoutes = require('./routes/patientPortalRoutes');
 const medicineRoutes = require('./routes/medicineRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const diseaseRoutes = require('./routes/diseaseRoutes');
+const staffRoutes = require('./routes/staffRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
@@ -37,6 +39,8 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/patient-portal', patientPortalRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/diseases', diseaseRoutes);
+app.use('/api/staff', staffRoutes);
 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 app.use(notFound);

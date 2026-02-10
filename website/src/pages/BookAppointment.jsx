@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, User, Phone, CheckCircle2, ArrowRight, ShieldCheck, HeartPulse } from 'lucide-react';
@@ -14,15 +14,25 @@ const BookAppointment = () => {
         phone: ''
     });
 
-    const specialities = [
-        'Cardiology', 'Neurology', 'Pediatrics', 'Oncology', 'Dermatology', 'Psychiatry'
-    ];
+    const [specialities, setSpecialities] = useState([]);
+    const [doctorsMap, setDoctorsMap] = useState({});
+    const [loadingData, setLoadingData] = useState(true);
 
-    const doctors = {
-        'Cardiology': ['Dr. Sarah Wilson', 'Dr. Robert Knight'],
-        'Neurology': ['Dr. James Miller', 'Dr. Lisa Hart'],
-        // ... more doctors
-    };
+    useEffect(() => {
+        const fetchSpecs = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/appointments/specialities');
+                const data = await response.json();
+                setSpecialities(data.specialities || []);
+                setDoctorsMap(data.doctors || {});
+            } catch (error) {
+                console.error('Error fetching specialities:', error);
+            } finally {
+                setLoadingData(false);
+            }
+        };
+        fetchSpecs();
+    }, []);
 
     const handleNext = () => setStep(prev => prev + 1);
     const handleBack = () => setStep(prev => prev - 1);
@@ -101,30 +111,38 @@ const BookAppointment = () => {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="space-y-8"
                             >
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Select Speciality</label>
-                                        <select
-                                            className="w-full bg-slate-50 p-5 rounded-2xl border-none font-black text-slate-700 focus:ring-2 focus:ring-medical-500 italic"
-                                            value={formData.speciality}
-                                            onChange={(e) => setFormData({ ...formData, speciality: e.target.value })}
-                                        >
-                                            <option value="">Clinical Domain..</option>
-                                            {specialities.map(s => <option key={s} value={s}>{s}</option>)}
-                                        </select>
+                                {loadingData ? (
+                                    <div className="col-span-2 py-10 flex flex-col items-center justify-center space-y-4">
+                                        <div className="w-8 h-8 border-4 border-medical-500 border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing Clinical Units..</p>
                                     </div>
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Preferred Doctor</label>
-                                        <select
-                                            className="w-full bg-slate-50 p-5 rounded-2xl border-none font-black text-slate-700 focus:ring-2 focus:ring-medical-500 italic"
-                                            value={formData.doctor}
-                                            onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
-                                        >
-                                            <option value="">Consultant..</option>
-                                            {doctors[formData.speciality]?.map(d => <option key={d} value={d}>{d}</option>)}
-                                        </select>
+                                ) : (
+                                    <div className="grid md:grid-cols-2 gap-8 w-full">
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Select Speciality</label>
+                                            <select
+                                                className="w-full bg-slate-50 p-5 rounded-2xl border-none font-black text-slate-700 focus:ring-2 focus:ring-medical-500 italic"
+                                                value={formData.speciality}
+                                                onChange={(e) => setFormData({ ...formData, speciality: e.target.value, doctor: '' })}
+                                            >
+                                                <option value="">Clinical Domain..</option>
+                                                {specialities.map(s => <option key={s} value={s}>{s}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Preferred Doctor</label>
+                                            <select
+                                                className="w-full bg-slate-50 p-5 rounded-2xl border-none font-black text-slate-700 focus:ring-2 focus:ring-medical-500 italic"
+                                                value={formData.doctor}
+                                                onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
+                                                disabled={!formData.speciality}
+                                            >
+                                                <option value="">Consultant..</option>
+                                                {doctorsMap[formData.speciality]?.map(d => <option key={d} value={d}>{d}</option>)}
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                                 <button
                                     onClick={handleNext}
                                     disabled={!formData.speciality || !formData.doctor}

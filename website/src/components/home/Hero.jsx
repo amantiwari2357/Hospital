@@ -22,14 +22,14 @@ const Hero = () => {
                             <span className="text-sm font-bold text-slate-800 tracking-wide uppercase">Your Health, Our Priority</span>
                         </div>
 
-                        <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-8">
+                        <h1 className="text-4xl lg:text-5xl font-extrabold text-slate-900 leading-[1.1] mb-8">
                             Compassionate Care, <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-medical-600 to-medical-400">
                                 Advanced Technology.
                             </span>
                         </h1>
 
-                        <p className="text-lg text-slate-600 mb-12 max-w-xl leading-relaxed">
+                        <p className="text-base text-slate-600 mb-12 max-w-xl leading-relaxed">
                             Experience healthcare redefined with world-class specialists, state-of-the-art facilities, and a commitment to your well-being.
                         </p>
 

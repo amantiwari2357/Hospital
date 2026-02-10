@@ -1,8 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Hero from '../components/home/Hero';
 import ChatWidget from '../components/shared/ChatWidget';
-import { diseasesData } from '../utils/diseasesData';
 import MedicinePreview from '../components/home/MedicinePreview';
 import {
     Stethoscope,
@@ -27,7 +26,43 @@ import { Link } from 'react-router-dom';
 const Home = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showAllDiseases, setShowAllDiseases] = useState(false);
+    const [dynamicDoctors, setDynamicDoctors] = useState([]);
+    const [dynamicDiseases, setDynamicDiseases] = useState([]);
+    const [loading, setLoading] = useState(true);
     const scrollRef = useRef(null);
+
+    const iconMap = {
+        'Cardiology': Stethoscope,
+        'Neurology': Brain,
+        'Pediatrics': Baby,
+        'Orthopedics': Bone,
+        'Diagnostics': Microscope,
+        'Consultation': Users,
+        'General': Stethoscope,
+        'Oncology': HeartPulse,
+        'Dermatology': Microscope,
+        'Psychiatry': Brain
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [drRes, disRes] = await Promise.all([
+                    fetch('http://localhost:5000/api/appointments/doctors'),
+                    fetch('http://localhost:5000/api/diseases')
+                ]);
+                const drData = await drRes.json();
+                const disData = await disRes.json();
+                setDynamicDoctors(drData);
+                setDynamicDiseases(disData);
+            } catch (error) {
+                console.error('Error fetching home data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     const scroll = (direction) => {
         if (scrollRef.current) {
@@ -46,20 +81,12 @@ const Home = () => {
         { title: 'Pharmacy', icon: Tablets, color: 'bg-purple-100 text-purple-600', description: 'Order medicines online with home delivery.' },
     ];
 
-    const specialities = [
-        { name: 'Cardiology', icon: Stethoscope },
-        { name: 'Neurology', icon: Brain },
-        { name: 'Pediatrics', icon: Baby },
-        { name: 'Orthopedics', icon: Bone },
-        { name: 'Diagnostics', icon: Microscope },
-        { name: 'Consultation', icon: Users },
-    ];
-
-    const doctors = [
-        { name: 'Dr. Sarah Wilson', role: 'Chief Cardiologist', rating: 4.9, image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=2070&auto=format&fit=crop' },
-        { name: 'Dr. James Miller', role: 'Senior Neurologist', rating: 4.8, image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2070&auto=format&fit=crop' },
-        { name: 'Dr. Elena Rodriguez', role: 'Pediatric Surgeon', rating: 5.0, image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=1974&auto=format&fit=crop' },
-    ];
+    // Build specialities from doctors list
+    const specialities = Array.from(new Set(dynamicDoctors.map(d => d.specialization || d.department || 'General')))
+        .map(spec => ({
+            name: spec,
+            icon: iconMap[spec] || Stethoscope
+        }));
 
     return (
         <>
@@ -202,13 +229,13 @@ const Home = () => {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                                 <div className="absolute right-6 top-1/2 -translate-y-1/2 px-3 py-1 bg-slate-50 rounded-lg text-[8px] font-black text-slate-400 uppercase tracking-widest hidden sm:block">
-                                    {diseasesData.length} Entries
+                                    {dynamicDiseases.length} Entries
                                 </div>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                            {diseasesData
+                            {dynamicDiseases
                                 .filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
                                 .slice(0, showAllDiseases || searchQuery ? undefined : 10)
                                 .map((disease, index) => (
@@ -250,7 +277,7 @@ const Home = () => {
                             </div>
                         )}
 
-                        {searchQuery && diseasesData.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                        {searchQuery && dynamicDiseases.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
                             <div className="text-center py-20 bg-white rounded-[3rem] border border-dashed border-slate-300">
                                 <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No clinical results for "{searchQuery}"</p>
                             </div>
@@ -312,14 +339,14 @@ const Home = () => {
                             <h2 className="text-4xl font-black text-slate-900 mb-4">Board-Certified Specialists</h2>
                         </div>
                         <div className="grid md:grid-cols-3 gap-10">
-                            {doctors.map((doc, index) => (
+                            {dynamicDoctors.map((doc, index) => (
                                 <div key={doc.name} className="bg-white rounded-[3rem] overflow-hidden shadow-lg border border-slate-100 group">
                                     <div className="h-64 relative overflow-hidden">
                                         <img src={doc.image} alt={doc.name} className="w-full h-full object-cover" />
                                     </div>
                                     <div className="p-8 text-center">
                                         <h4 className="text-2xl font-black text-slate-900 mb-1">{doc.name}</h4>
-                                        <p className="text-medical-600 font-bold text-sm mb-6 uppercase">{doc.role}</p>
+                                        <p className="text-medical-600 font-bold text-sm mb-6 uppercase">{doc.roleDescription || doc.specialization}</p>
                                     </div>
                                 </div>
                             ))}
