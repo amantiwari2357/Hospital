@@ -7,31 +7,58 @@ dotenv.config();
 
 const diseasesData = [
     {
-        id: 'cancer',
-        name: 'Cancer Care',
-        category: 'Major',
-        description: 'Comprehensive oncology services including screening, diagnosis, and advanced treatment options.',
-        symptoms: ['Unexplained weight loss', 'Persistent fatigue', 'Changes in skin', 'Persistent cough'],
-        treatments: ['Chemotherapy', 'Radiation Therapy', 'Surgery', 'Immunotherapy'],
-        image: 'https://images.unsplash.com/photo-1579154236594-c6b74769fe1c?q=80&w=2070&auto=format&fit=crop'
+        id: 'melanoma',
+        name: 'Melanoma (Skin Cancer)',
+        category: 'Skin/Face',
+        description: 'The most serious type of skin cancer, developing in the melanocytes that produce melanin.',
+        symptoms: ['Large brownish spot with darker speckles', 'Mole that changes in color, size or feel', 'Small lesion with an irregular border'],
+        treatments: ['Surgical Excision', 'Immunotherapy', 'Targeted Therapy', 'Radiation'],
+        image: 'https://images.unsplash.com/photo-1579154236594-c6b74769fe1c?q=80&w=2070'
     },
     {
-        id: 'smoking-cessation',
-        name: 'Smoking Addiction',
-        category: 'Addiction',
-        description: 'Expert-led programs to help you quit smoking and restore lung health.',
-        symptoms: ['Cravings', 'Irritability', 'Difficulty concentrating', 'Increased appetite'],
-        treatments: ['Nicotine Replacement Therapy', 'Counseling', 'Support Groups', 'Behavioral Therapy'],
-        image: 'https://images.unsplash.com/photo-1527137342181-19aab11a8ee1?q=80&w=2070&auto=format&fit=crop'
+        id: 'eczema-atopic',
+        name: 'Atopic Dermatitis (Eczema)',
+        category: 'Skin/Face',
+        description: 'A condition that makes your skin red and itchy. It is common in children but can occur at any age.',
+        symptoms: ['Dry skin', 'Itching', 'Red to brownish-gray patches', 'Small, raised bumps'],
+        treatments: ['Moisturizers', 'Topical Steroids', 'Light Therapy', 'Immune-modulators'],
+        image: 'https://images.unsplash.com/photo-1612632823277-3253a6341249?q=80&w=2070'
     },
     {
-        id: 'alcohol-addiction',
-        name: 'Alcohol De-addiction',
-        category: 'Addiction',
-        description: 'Safe detoxification and long-term recovery support for alcohol dependency.',
-        symptoms: ['Inability to limit drinking', 'Withdrawal symptoms', 'Neglecting responsibilities'],
-        treatments: ['Medical Detox', 'Behavioral Counseling', 'Rehabilitation', 'Medication'],
-        image: 'https://images.unsplash.com/photo-1541535650810-10121ee90304?q=80&w=2070&auto=format&fit=crop'
+        id: 'psoriasis-plaque',
+        name: 'Psoriasis (Plaque)',
+        category: 'Skin/Face',
+        description: 'A skin disease that causes red, itchy scaly patches, most commonly on the knees, elbows, trunk and scalp.',
+        symptoms: ['Red patches of skin covered with thick, silvery scales', 'Small scaling spots', 'Dry, cracked skin'],
+        treatments: ['Topical Corticosteroids', 'Vitamin D Analogues', 'Phototherapy', 'Systemic Medications'],
+        image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=2070'
+    },
+    {
+        id: 'rosacea-flare',
+        name: 'Rosacea',
+        category: 'Skin/Face',
+        description: 'A common skin condition that causes blushing or flushing and visible blood vessels in your face.',
+        symptoms: ['Facial blushing or flushing', 'Visible veins', 'Swollen bumps', 'Burning sensation'],
+        treatments: ['Topical Gels', 'Oral Antibiotics', 'Laser Therapy', 'Electrosurgery'],
+        image: 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=2070'
+    },
+    {
+        id: 'fungal-infection',
+        name: 'Fungal Skin Infection (Ringworm)',
+        category: 'Skin/Face',
+        description: 'A common skin infection caused by a fungus. It is often called ringworm because it can cause a circular rash.',
+        symptoms: ['Scaly ring-shaped area', 'Itchiness', 'Red, scaly, cracked skin', 'Hair loss in affected area'],
+        treatments: ['Antifungal Creams', 'Antifungal Pills', 'Proper Hygiene', 'Keeping area dry'],
+        image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=2070'
+    },
+    {
+        id: 'vitiligo',
+        name: 'Vitiligo',
+        category: 'Skin/Face',
+        description: 'A disease that causes loss of skin color in patches. The discolored areas usually get bigger with time.',
+        symptoms: ['Patchy loss of skin color', 'Premature whitening or graying of hair', 'Loss of color in tissues inside mouth'],
+        treatments: ['Restoration Creams', 'Light Therapy', 'Skin Grafting', 'Depigmentation'],
+        image: 'https://images.unsplash.com/photo-1594498653385-d5172c532c00?q=80&w=2070'
     },
     {
         id: 'pimples-acne',
@@ -40,7 +67,7 @@ const diseasesData = [
         description: 'Advanced dermatological treatments for clear, healthy skin and scar prevention.',
         symptoms: ['Whiteheads', 'Blackheads', 'Red bumps', 'Painful cysts'],
         treatments: ['Topic Medications', 'Oral Antibiotics', 'Laser Therapy', 'Chemical Peels'],
-        image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=2070&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=2070'
     },
     {
         id: 'chronic-fissure',
@@ -49,9 +76,17 @@ const diseasesData = [
         description: 'Specialized care for anal fissures, focusing on pain relief and permanent healing.',
         symptoms: ['Pain during bowel movements', 'Bright red blood', 'Visible crack in skin'],
         treatments: ['Dietary Changes', 'Stool Softeners', 'Topical Ointments', 'Sphincterotomy'],
-        image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=2070&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=2070'
+    },
+    {
+        id: 'cancer',
+        name: 'General Oncology (Cancer)',
+        category: 'Major',
+        description: 'Comprehensive oncology services including screening, diagnosis, and advanced treatment options.',
+        symptoms: ['Unexplained weight loss', 'Persistent fatigue', 'Changes in skin', 'Persistent cough'],
+        treatments: ['Chemotherapy', 'Radiation Therapy', 'Surgery', 'Immunotherapy'],
+        image: 'https://images.unsplash.com/photo-1579154236594-c6b74769fe1c?q=80&w=2070'
     }
-    // ... more can be added later or imported
 ];
 
 const doctorsData = [

@@ -23,6 +23,9 @@ const SkinAI = () => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState(null);
     const [showConsultation, setShowConsultation] = useState(false);
+    const [diagnosisId, setDiagnosisId] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [isSubmittingConsultation, setIsSubmittingConsultation] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleImageUpload = (e) => {
@@ -30,38 +33,97 @@ const SkinAI = () => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setSelectedImage(reader.result);
-                analyzeImage();
+                const imageData = reader.result;
+                setSelectedImage(imageData);
+                analyzeImage(imageData);
             };
             reader.readAsDataURL(file);
         }
     };
 
-    const analyzeImage = () => {
+    const analyzeImage = async (imageData) => {
         setIsAnalyzing(true);
         setResult(null);
-        // Simulate AI analysis delay
-        setTimeout(() => {
-            setIsAnalyzing(false);
-            setResult({
-                condition: 'Dermatitis (Probable)',
-                confidence: '94.2%',
-                severity: 'Moderate',
-                description: 'Detected patterns suggest inflammatory skin response. This could be due to contact with an allergen or irritant.',
-                suggestions: [
-                    'Avoid harsh soaps or chemicals',
-                    'Apply cool compress to affected area',
-                    'Keep the skin hydrated with fragrance-free lotion',
-                    'Monitor for spreading or increased redness'
-                ],
-                urgent: false
+        setDiagnosisId(null);
+
+        try {
+            const response = await fetch('http://localhost:5000/api/skin-diagnosis/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: imageData })
             });
-        }, 3000);
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setResult(data.aiAnalysis);
+                setDiagnosisId(data._id); // Store ID for later update
+            } else {
+                console.error("Analysis failed:", data.error || data.message);
+                setResult({
+                    condition: 'Analysis Error',
+                    confidence: '0%',
+                    severity: 'Error',
+                    description: data.error || data.message || 'Could not process the image. Please try again.',
+                    suggestions: [
+                        'Ensure the area is well-lit',
+                        'Remove any covering hair or clothing',
+                        'Hold the camera 4-6 inches away',
+                        'Ensure the photo is in focus'
+                    ],
+                    isUrgent: false,
+                    isError: true
+                });
+            }
+        } catch (error) {
+            console.error("Error analyzing image:", error);
+            setResult({
+                condition: 'Connection Error',
+                confidence: '0%',
+                severity: 'Unknown',
+                description: 'Could not connect to the analysis server.',
+                suggestions: [],
+                isUrgent: false
+            });
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
+    const handleConsultationConfirm = async () => {
+        if (!diagnosisId || !phoneNumber) return;
+
+        setIsSubmittingConsultation(true);
+        try {
+            const response = await fetch(`http://localhost:5000/api/skin-diagnosis/${diagnosisId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    phone: phoneNumber,
+                    status: 'Follow-up Scheduled'
+                })
+            });
+
+            if (response.ok) {
+                alert("Consultation request confirmed! A doctor will contact you soon.");
+                setShowConsultation(false);
+            }
+        } catch (error) {
+            console.error("Failed to confirm consultation:", error);
+        } finally {
+            setIsSubmittingConsultation(false);
+        }
     };
 
     const resetScan = () => {
         setSelectedImage(null);
         setResult(null);
+        setDiagnosisId(null);
+        setPhoneNumber('');
         setIsAnalyzing(false);
         setShowConsultation(false);
     };
@@ -197,16 +259,16 @@ const SkinAI = () => {
                                                     </div>
                                                     <div className="text-right">
                                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Confidence</p>
-                                                        <p className="text-2xl font-black text-medical-600">{result.confidence}</p>
+                                                        <p className={`text-2xl font-black ${result.isError ? 'text-red-500' : 'text-medical-600'}`}>{result.confidence}</p>
                                                     </div>
                                                 </div>
 
-                                                <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100 italic">
-                                                    <div className="flex items-center gap-3 mb-4 text-medical-600">
+                                                <div className={`p-8 rounded-3xl border italic ${result.isError ? 'bg-red-50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
+                                                    <div className={`flex items-center gap-3 mb-4 ${result.isError ? 'text-red-600' : 'text-medical-600'}`}>
                                                         <AlertCircle className="w-5 h-5" />
-                                                        <p className="font-black uppercase text-sm">AI Assessment</p>
+                                                        <p className="font-black uppercase text-sm">{result.isError ? 'Error Detected' : 'AI Assessment'}</p>
                                                     </div>
-                                                    <p className="text-slate-600 leading-relaxed font-medium">{result.description}</p>
+                                                    <p className={`${result.isError ? 'text-red-600' : 'text-slate-600'} leading-relaxed font-medium`}>{result.description}</p>
                                                 </div>
 
                                                 <div>
@@ -273,11 +335,17 @@ const SkinAI = () => {
                                     <div className="w-full space-y-4">
                                         <input
                                             type="tel"
+                                            value={phoneNumber}
+                                            onChange={(e) => setPhoneNumber(e.target.value)}
                                             placeholder="Verify Phone Number.."
                                             className="w-full bg-white/10 border-2 border-white/10 rounded-2xl py-5 px-8 outline-none focus:border-medical-500 transition-all font-black text-white"
                                         />
-                                        <button className="w-full bg-medical-500 text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-white hover:text-medical-600 transition-all shadow-2xl shadow-medical-500/20">
-                                            Confirm Request <ArrowRight className="w-5 h-5 ml-2" />
+                                        <button
+                                            onClick={handleConsultationConfirm}
+                                            disabled={isSubmittingConsultation || !phoneNumber}
+                                            className="w-full bg-medical-500 text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-white hover:text-medical-600 transition-all shadow-2xl shadow-medical-500/20 disabled:opacity-50"
+                                        >
+                                            {isSubmittingConsultation ? 'Confirming...' : 'Confirm Request'} <ArrowRight className="w-5 h-5 ml-2" />
                                         </button>
                                     </div>
                                     <p className="mt-8 text-[9px] text-white/30 uppercase font-bold tracking-widest">Typical response time: Under 15 Minutes</p>

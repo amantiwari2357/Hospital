@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import {
     Sparkles,
@@ -27,114 +27,74 @@ const SkinAIDiagnosisManager = () => {
     const [selectedDiagnosis, setSelectedDiagnosis] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'pending', 'reviewed', 'followup'
+    const [diagnoses, setDiagnoses] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Mock AI diagnosis submissions
-    const diagnoses = [
-        {
-            id: 'AI-5521',
-            patientName: 'Mahan Kumar',
-            patientId: 'P-992834',
-            phone: '+91 98765 43210',
-            email: 'mahan@example.com',
-            submittedDate: 'Feb 05, 2024',
-            submittedTime: '10:30 AM',
-            condition: 'Dermatitis (Probable)',
-            confidence: '94.2%',
-            severity: 'Moderate',
-            status: 'Pending Review',
-            imageUrl: '/placeholder-skin.jpg',
-            description: 'Detected patterns suggest inflammatory skin response. This could be due to contact with an allergen or irritant.',
-            recommendations: [
-                'Avoid known allergens and irritants',
-                'Use gentle, fragrance-free skincare products',
-                'Consider topical corticosteroid cream',
-                'Schedule dermatologist consultation if symptoms persist'
-            ],
-            aiNotes: 'High confidence detection. Pattern matches common contact dermatitis presentations.',
-            followupRequired: true
-        },
-        {
-            id: 'AI-5520',
-            patientName: 'Priya Sharma',
-            patientId: 'P-883421',
-            phone: '+91 98123 45678',
-            email: 'priya@example.com',
-            submittedDate: 'Feb 04, 2024',
-            submittedTime: '02:15 PM',
-            condition: 'Eczema (Likely)',
-            confidence: '89.7%',
-            severity: 'Mild',
-            status: 'Reviewed',
-            imageUrl: '/placeholder-skin.jpg',
-            description: 'Characteristic dry, itchy patches consistent with atopic dermatitis.',
-            recommendations: [
-                'Moisturize regularly with emollient creams',
-                'Avoid hot showers',
-                'Use mild, unscented soaps',
-                'Consider antihistamines for itching'
-            ],
-            aiNotes: 'Typical eczema presentation. Recommend follow-up if condition worsens.',
-            followupRequired: false
-        },
-        {
-            id: 'AI-5519',
-            patientName: 'Rahul Verma',
-            patientId: 'P-772910',
-            phone: '+91 99887 76655',
-            email: 'rahul@example.com',
-            submittedDate: 'Feb 03, 2024',
-            submittedTime: '04:45 PM',
-            condition: 'Psoriasis (Possible)',
-            confidence: '82.3%',
-            severity: 'Moderate',
-            status: 'Follow-up Scheduled',
-            imageUrl: '/placeholder-skin.jpg',
-            description: 'Scaly, raised patches detected. Consistent with plaque psoriasis patterns.',
-            recommendations: [
-                'Consult dermatologist for definitive diagnosis',
-                'Avoid skin trauma (Koebner phenomenon)',
-                'Consider phototherapy options',
-                'Maintain skin hydration'
-            ],
-            aiNotes: 'Moderate confidence. Recommend specialist consultation for confirmation.',
-            followupRequired: true
-        },
-        {
-            id: 'AI-5518',
-            patientName: 'Ananya Iyer',
-            patientId: 'P-665432',
-            phone: '+91 98234 56789',
-            email: 'ananya@example.com',
-            submittedDate: 'Feb 02, 2024',
-            submittedTime: '11:20 AM',
-            condition: 'Acne Vulgaris',
-            confidence: '96.8%',
-            severity: 'Mild',
-            status: 'Reviewed',
-            imageUrl: '/placeholder-skin.jpg',
-            description: 'Comedones and inflammatory lesions characteristic of acne.',
-            recommendations: [
-                'Use non-comedogenic skincare products',
-                'Consider benzoyl peroxide or salicylic acid treatments',
-                'Maintain consistent cleansing routine',
-                'Avoid picking or squeezing lesions'
-            ],
-            aiNotes: 'Very high confidence. Standard acne presentation.',
-            followupRequired: false
+    const fetchDiagnoses = async () => {
+        try {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            if (!userInfo || !userInfo.token) return;
+
+            const response = await fetch('http://localhost:5000/api/skin-diagnosis', {
+                headers: { Authorization: `Bearer ${userInfo.token}` }
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                // Transform data if necessary to match component expectations
+                const formattedData = data.map(d => ({
+                    id: d._id, // Use MongoDB _id
+                    patientName: d.patientName || 'Anonymous',
+                    patientId: d.patientId || 'N/A',
+                    phone: d.phone || 'N/A',
+                    email: d.email || 'N/A',
+                    submittedDate: new Date(d.createdAt).toLocaleDateString(),
+                    submittedTime: new Date(d.createdAt).toLocaleTimeString(),
+                    condition: d.aiAnalysis?.condition || 'Unknown',
+                    confidence: d.aiAnalysis?.confidence || '0%',
+                    severity: d.aiAnalysis?.severity || 'Unknown',
+                    status: d.status,
+                    imageUrl: d.imageUrl,
+                    description: d.aiAnalysis?.description || '',
+                    recommendations: d.aiAnalysis?.suggestions || [],
+                    aiNotes: 'AI analysis completed.',
+                    followupRequired: d.aiAnalysis?.isUrgent || false
+                }));
+                setDiagnoses(formattedData);
+            }
+        } catch (error) {
+            console.error("Failed to fetch diagnoses", error);
+        } finally {
+            setLoading(false);
         }
-    ];
+    };
+
+    // Initial fetch and Polling
+    useEffect(() => {
+        fetchDiagnoses();
+        const interval = setInterval(fetchDiagnoses, 5000); // Poll every 5 seconds for "real-time" feel
+        return () => clearInterval(interval);
+    }, []);
 
     const stats = {
         total: diagnoses.length,
         pending: diagnoses.filter(d => d.status === 'Pending Review').length,
         reviewed: diagnoses.filter(d => d.status === 'Reviewed').length,
         followup: diagnoses.filter(d => d.followupRequired).length,
-        avgConfidence: '90.8%'
+        avgConfidence: diagnoses.length > 0
+            ? Math.round(diagnoses.reduce((acc, curr) => acc + parseFloat(curr.confidence), 0) / diagnoses.length) + '%'
+            : '0%'
     };
 
     const currentDiagnosis = selectedDiagnosis ? diagnoses.find(d => d.id === selectedDiagnosis) : null;
 
     const filteredDiagnoses = diagnoses.filter(d => {
+        const matchesSearch = d.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            d.condition.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            d.id.toLowerCase().includes(searchQuery.toLowerCase());
+
+        if (!matchesSearch) return false;
+
         if (filterStatus === 'pending') return d.status === 'Pending Review';
         if (filterStatus === 'reviewed') return d.status === 'Reviewed';
         if (filterStatus === 'followup') return d.followupRequired;
@@ -209,8 +169,8 @@ const SkinAIDiagnosisManager = () => {
                                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
                                     <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">Status</span>
                                     <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${currentDiagnosis.status === 'Pending Review' ? 'bg-yellow-100 text-yellow-600' :
-                                            currentDiagnosis.status === 'Reviewed' ? 'bg-green-100 text-green-600' :
-                                                'bg-blue-100 text-blue-600'
+                                        currentDiagnosis.status === 'Reviewed' ? 'bg-green-100 text-green-600' :
+                                            'bg-blue-100 text-blue-600'
                                         }`}>
                                         {currentDiagnosis.status}
                                     </span>
@@ -379,8 +339,8 @@ const SkinAIDiagnosisManager = () => {
                                     </td>
                                     <td className="py-6 px-8">
                                         <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${diagnosis.severity === 'Mild' ? 'bg-green-50 text-green-600' :
-                                                diagnosis.severity === 'Moderate' ? 'bg-yellow-50 text-yellow-600' :
-                                                    'bg-red-50 text-red-600'
+                                            diagnosis.severity === 'Moderate' ? 'bg-yellow-50 text-yellow-600' :
+                                                'bg-red-50 text-red-600'
                                             }`}>
                                             {diagnosis.severity}
                                         </span>
@@ -391,8 +351,8 @@ const SkinAIDiagnosisManager = () => {
                                     </td>
                                     <td className="py-6 px-8">
                                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${diagnosis.status === 'Pending Review' ? 'bg-yellow-100 text-yellow-600' :
-                                                diagnosis.status === 'Reviewed' ? 'bg-green-100 text-green-600' :
-                                                    'bg-blue-100 text-blue-600'
+                                            diagnosis.status === 'Reviewed' ? 'bg-green-100 text-green-600' :
+                                                'bg-blue-100 text-blue-600'
                                             }`}>
                                             {diagnosis.status}
                                         </span>

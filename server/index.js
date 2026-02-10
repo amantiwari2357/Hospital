@@ -33,6 +33,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const diseaseRoutes = require('./routes/diseaseRoutes');
 const staffRoutes = require('./routes/staffRoutes');
 const userRoutes = require('./routes/userRoutes');
+const skinDiagnosisRoutes = require('./routes/skinDiagnosisRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
@@ -44,6 +45,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/diseases', diseaseRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/skin-diagnosis', skinDiagnosisRoutes);
 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 app.use(notFound);
