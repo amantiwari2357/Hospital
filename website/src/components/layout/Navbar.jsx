@@ -96,16 +96,16 @@ const Navbar = () => {
             className={`fixed w-full z-50 transition-all duration-500`}
             onMouseLeave={() => setActiveMegaMenu(null)}
         >
-            <div className={`max-w-[99%] mx-auto transition-all duration-500 overflow-hidden ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-2xl rounded-none py-2 translate-y-0' : 'bg-white shadow-xl rounded-[3rem] py-4 mt-4 translate-y-0'
-                } px-6 border border-slate-100 relative z-20`}>
+            <div className={`max-w-[99%] mx-auto transition-all duration-500 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-2xl rounded-none py-2 translate-y-0' : 'bg-white shadow-xl rounded-[3rem] py-4 mt-4 translate-y-0'
+                } px-3 sm:px-6 border border-slate-100 relative z-20`}>
 
                 {/* LAYER 1: BRAND & GLOBAL SEARCH & MAIN ACTIONS */}
-                <div className="flex justify-between items-center gap-8 mb-4">
+                <div className="flex justify-between items-center gap-2 sm:gap-8 mb-4">
                     <Link to="/" className="flex items-center gap-2 shrink-0 group">
-                        <div className="p-3 rounded-2xl bg-medical-500 text-white shadow-lg shadow-medical-200 group-hover:rotate-12 transition-transform">
-                            <HeartPulse className="w-6 h-6" />
+                        <div className="p-2 sm:p-3 rounded-2xl bg-medical-500 text-white shadow-lg shadow-medical-200 group-hover:rotate-12 transition-transform">
+                            <HeartPulse className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
-                        <span className="text-2xl font-black tracking-tighter text-slate-900 italic uppercase">
+                        <span className="hidden sm:block text-xl sm:text-2xl font-black tracking-tighter text-slate-900 italic uppercase">
                             Care<span className="text-medical-600">Sync</span>
                         </span>
                     </Link>
@@ -119,7 +119,7 @@ const Navbar = () => {
                         />
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex items-center gap-1 sm:gap-3 shrink-0">
                         <Link to="/emergency" className="hidden sm:flex bg-red-600 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all gap-2 items-center shadow-lg shadow-red-100">
                             <ShieldAlert className="w-4 h-4 animate-pulse" />
                             EMERGENCY
@@ -137,7 +137,7 @@ const Navbar = () => {
 
                         <div className="h-10 w-px bg-slate-100 mx-2 hidden lg:block" />
 
-                        <button onClick={() => setIsCartOpen && setIsCartOpen(true)} className="p-3.5 bg-slate-50 text-slate-600 rounded-2xl hover:bg-medical-50 hover:text-medical-600 transition-all relative group">
+                        <button onClick={() => setIsCartOpen && setIsCartOpen(true)} className="p-2 sm:p-3.5 bg-slate-50 text-slate-600 rounded-2xl hover:bg-medical-50 hover:text-medical-600 transition-all relative group">
                             <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform" />
                             {cartCount > 0 && (
                                 <span className="absolute -top-1 -right-1 bg-medical-600 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center">
@@ -147,24 +147,24 @@ const Navbar = () => {
                         </button>
 
                         {isAuthenticated ? (
-                            <Link to="/profile" className="p-3.5 bg-slate-50 text-slate-600 rounded-2xl hover:bg-medical-50 hover:text-medical-600 transition-all group">
+                            <Link to="/profile" className="p-2 sm:p-3.5 bg-slate-50 text-slate-600 rounded-2xl hover:bg-medical-50 hover:text-medical-600 transition-all group">
                                 <User className="w-5 h-5 group-hover:scale-110 transition-transform" />
                             </Link>
                         ) : (
-                            <Link to="/portal-login" className="px-6 py-3 bg-medical-600 text-white rounded-2xl hover:bg-medical-700 transition-all font-bold text-sm uppercase tracking-wider">
+                            <Link to="/portal-login" className="px-4 py-2 sm:px-6 sm:py-3 bg-medical-600 text-white rounded-2xl hover:bg-medical-700 transition-all font-bold text-xs sm:text-sm uppercase tracking-wider">
                                 Login
                             </Link>
                         )}
 
-                        <Link to="/ambulance" className="p-3.5 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-all group flex sm:hidden items-center justify-center border border-red-100">
+                        <Link to="/ambulance" className="p-2 sm:p-3.5 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-all group flex sm:hidden items-center justify-center border border-red-100">
                             <Ambulance className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         </Link>
 
-                        <Link to="/skin-ai" className="p-3.5 bg-slate-50 text-slate-600 rounded-2xl hover:bg-medical-50 hover:text-medical-600 transition-all group flex xl:hidden items-center justify-center">
+                        <Link to="/skin-ai" className="p-2 sm:p-3.5 bg-slate-50 text-slate-600 rounded-2xl hover:bg-medical-50 hover:text-medical-600 transition-all group flex xl:hidden items-center justify-center">
                             <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform text-medical-600" />
                         </Link>
 
-                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden p-3 text-slate-600 hover:text-medical-600">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden p-2 sm:p-3 text-slate-600 hover:text-medical-600">
                             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
