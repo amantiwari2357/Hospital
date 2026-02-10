@@ -11,6 +11,23 @@ const userSchema = mongoose.Schema({
     roleDescription: { type: String },
     rating: { type: Number, default: 0 },
     image: { type: String },
+    phone: { type: String },
+    licenseId: { type: String },
+    bio: { type: String },
+    tags: [{ type: String }],
+    schedule: [{
+        day: { type: String },
+        slots: [{
+            time: { type: String },
+            label: { type: String }
+        }]
+    }],
+    isOnCall: { type: Boolean, default: true },
+    socialLinks: {
+        linkedin: { type: String },
+        twitter: { type: String },
+        facebook: { type: String }
+    },
     isAdmin: { type: Boolean, default: false, required: true },
 }, { timestamps: true });
 
