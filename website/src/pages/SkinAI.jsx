@@ -27,17 +27,24 @@ const SkinAI = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isSubmittingConsultation, setIsSubmittingConsultation] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const [cameraMode, setCameraMode] = useState('environment'); // 'user' or 'environment'
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const fileInputRef = useRef(null);
 
-    const startCamera = async () => {
+    const startCamera = async (mode = cameraMode) => {
         setIsCameraOpen(true);
         setSelectedImage(null);
         setResult(null);
+
+        // Stop any existing tracks first
+        if (videoRef.current && videoRef.current.srcObject) {
+            videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        }
+
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
+                video: { facingMode: mode }
             });
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
@@ -46,6 +53,14 @@ const SkinAI = () => {
             console.error("Error accessing camera:", err);
             alert("Could not access camera. Please check permissions.");
             setIsCameraOpen(false);
+        }
+    };
+
+    const toggleCamera = () => {
+        const newMode = cameraMode === 'environment' ? 'user' : 'environment';
+        setCameraMode(newMode);
+        if (isCameraOpen) {
+            startCamera(newMode);
         }
     };
 
@@ -263,10 +278,11 @@ const SkinAI = () => {
 
                                     <div className="absolute bottom-12 flex items-center gap-6">
                                         <button
-                                            onClick={stopCamera}
-                                            className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-red-500 transition-all"
+                                            onClick={toggleCamera}
+                                            className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-medical-500 transition-all"
+                                            title="Switch Camera"
                                         >
-                                            <X className="w-8 h-8" />
+                                            <RefreshCw className="w-8 h-8" />
                                         </button>
                                         <button
                                             onClick={captureImage}
@@ -275,6 +291,12 @@ const SkinAI = () => {
                                             <div className="w-full h-full border-4 border-slate-900 rounded-full flex items-center justify-center">
                                                 <div className="w-12 h-12 bg-medical-600 rounded-full animate-pulse" />
                                             </div>
+                                        </button>
+                                        <button
+                                            onClick={stopCamera}
+                                            className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-red-500 transition-all"
+                                        >
+                                            <X className="w-8 h-8" />
                                         </button>
                                     </div>
                                 </motion.div>
