@@ -363,31 +363,67 @@ const SkinAI = () => {
                                         <img src={selectedImage} alt="Analysis" className="w-full h-full object-contain" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
 
-                                        {/* Hotspot Markers */}
-                                        {!isAnalyzing && result?.hotspots?.map((hotspot, idx) => (
-                                            <motion.button
-                                                key={idx}
-                                                initial={{ scale: 0 }}
-                                                animate={{ scale: 1 }}
-                                                whileHover={{ scale: 1.2 }}
-                                                onClick={() => setActiveHotspot(hotspot)}
-                                                className={`absolute z-20 group flex items-center justify-center`}
-                                                style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, transform: 'translate(-50%, -50%)' }}
-                                            >
-                                                <div className="relative">
-                                                    {/* Blinking Pulse */}
-                                                    <div className="absolute inset-0 bg-medical-500 rounded-full animate-ping opacity-75 scale-150" />
-                                                    {/* Central Marker */}
-                                                    <div className={`w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all ${activeHotspot === hotspot ? 'bg-medical-600' : 'bg-medical-500/80 hover:bg-medical-600'}`}>
-                                                        <ArrowRight className={`w-4 h-4 text-white transform rotate-[-45deg] transition-transform ${activeHotspot === hotspot ? 'rotate-90' : ''}`} />
-                                                    </div>
-                                                    {/* Label Tooltip */}
-                                                    <div className="absolute top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-slate-900/90 text-white text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        {hotspot.label}
-                                                    </div>
+                                        {/* Dynamic AI Pointers & Markers */}
+                                        {!isAnalyzing && result?.hotspots?.map((hotspot, idx) => {
+                                            // Determine arrow origin based on position
+                                            const isLeft = hotspot.x < 50;
+                                            const isTop = hotspot.y < 50;
+                                            const originX = isLeft ? -10 : 110;
+                                            const originY = isTop ? hotspot.y - 10 : hotspot.y + 10;
+
+                                            // Color based on type
+                                            const markerColor = hotspot.type === 'anatomy' ? 'bg-blue-500' : 'bg-medical-500';
+                                            const textColor = hotspot.type === 'anatomy' ? 'text-blue-600' : 'text-medical-600';
+                                            const pulseColor = hotspot.type === 'anatomy' ? 'bg-blue-400' : 'bg-medical-400';
+
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{ zIndex: activeHotspot === hotspot ? 40 : 20 }}
+                                                >
+                                                    {/* The Pointer Line (Long Arrow) */}
+                                                    <svg className="absolute inset-0 w-full h-full opacity-60">
+                                                        <line
+                                                            x1={`${originX}%`} y1={`${originY}%`}
+                                                            x2={`${hotspot.x}%`} y2={`${hotspot.y}%`}
+                                                            stroke="currentColor"
+                                                            strokeWidth="1"
+                                                            className={textColor}
+                                                            strokeDasharray="4 2"
+                                                        />
+                                                    </svg>
+
+                                                    {/* Blinking Colorful Marker at Tip */}
+                                                    <motion.button
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        whileHover={{ scale: 1.2 }}
+                                                        onClick={() => setActiveHotspot(hotspot)}
+                                                        className="absolute pointer-events-auto group"
+                                                        style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, transform: 'translate(-50%, -50%)' }}
+                                                    >
+                                                        <div className="relative flex items-center">
+                                                            {/* Label Text next to marker */}
+                                                            <div className={`absolute ${isLeft ? 'left-10' : 'right-10'} whitespace-nowrap px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full border border-slate-100 shadow-sm transition-all group-hover:scale-110`}>
+                                                                <span className={`text-[8px] font-black uppercase tracking-tighter ${textColor}`}>
+                                                                    {hotspot.label}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Multiple Blinking Rings */}
+                                                            <div className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-20 scale-[3]`} />
+                                                            <div className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-40 scale-[2]`} style={{ animationDelay: '0.5s' }} />
+
+                                                            {/* Central Core */}
+                                                            <div className={`w-5 h-5 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all ${activeHotspot === hotspot ? 'scale-125' : ''} ${markerColor}`}>
+                                                                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                                                            </div>
+                                                        </div>
+                                                    </motion.button>
                                                 </div>
-                                            </motion.button>
-                                        ))}
+                                            );
+                                        })}
 
                                         <button
                                             onClick={resetScan}

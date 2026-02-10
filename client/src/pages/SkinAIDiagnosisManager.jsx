@@ -234,23 +234,54 @@ const SkinAIDiagnosisManager = () => {
                                                 }}
                                             />
                                             {/* Hotspot Overlay for Doctors */}
-                                            {Array.isArray(currentDiagnosis.hotspots) && currentDiagnosis.hotspots.map((hotspot, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className="absolute z-10 group"
-                                                    style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, transform: 'translate(-50%, -50%)' }}
-                                                >
-                                                    <button
-                                                        onClick={() => setActiveHotspot(hotspot)}
-                                                        className={`w-6 h-6 rounded-full border border-white shadow-lg flex items-center justify-center transition-all animate-pulse ${activeHotspot === hotspot ? 'bg-purple-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+                                            {Array.isArray(currentDiagnosis.hotspots) && currentDiagnosis.hotspots.map((hotspot, idx) => {
+                                                const isLeft = hotspot.x < 50;
+                                                const isTop = hotspot.y < 50;
+                                                const originX = isLeft ? -10 : 110;
+                                                const originY = isTop ? hotspot.y - 10 : hotspot.y + 10;
+                                                const markerColor = hotspot.type === 'anatomy' ? 'bg-blue-500' : 'bg-purple-500';
+                                                const textColor = hotspot.type === 'anatomy' ? 'text-blue-600' : 'text-purple-600';
+                                                const pulseColor = hotspot.type === 'anatomy' ? 'bg-blue-400' : 'bg-purple-400';
+
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        className="absolute inset-0 pointer-events-none"
+                                                        style={{ zIndex: activeHotspot === hotspot ? 20 : 10 }}
                                                     >
-                                                        <ArrowRight className="w-3 h-3 text-white transform rotate-[-45deg]" />
-                                                    </button>
-                                                    <div className="absolute top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        {hotspot.label}
+                                                        <svg className="absolute inset-0 w-full h-full opacity-40">
+                                                            <line
+                                                                x1={`${originX}%`} y1={`${originY}%`}
+                                                                x2={`${hotspot.x}%`} y2={`${hotspot.y}%`}
+                                                                stroke="currentColor"
+                                                                strokeWidth="1"
+                                                                className={textColor}
+                                                                strokeDasharray="4 2"
+                                                            />
+                                                        </svg>
+
+                                                        <div
+                                                            className="absolute pointer-events-auto group"
+                                                            style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, transform: 'translate(-50%, -50%)' }}
+                                                        >
+                                                            <div className="relative flex items-center">
+                                                                <button
+                                                                    onClick={() => setActiveHotspot(hotspot)}
+                                                                    className={`w-6 h-6 rounded-full border border-white shadow-lg flex items-center justify-center transition-all ${activeHotspot === hotspot ? 'scale-125' : ''} ${markerColor}`}
+                                                                >
+                                                                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                                                                </button>
+                                                                <div className={`absolute ${isLeft ? 'left-8' : 'right-8'} whitespace-nowrap px-1.5 py-0.5 bg-white/90 rounded-full border border-gray-100 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity`}>
+                                                                    <span className={`text-[7px] font-black uppercase tracking-tighter ${textColor}`}>
+                                                                        {hotspot.label}
+                                                                    </span>
+                                                                </div>
+                                                                <div className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-20 scale-[2.5]`} />
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     ) : (
                                         <ImageIcon className="w-16 h-16 text-gray-300" />

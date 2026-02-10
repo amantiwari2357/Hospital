@@ -1,6 +1,16 @@
 import sys
 import json
 import random
+import mediapipe as mp
+
+# Initialize Mediapipe
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(
+    static_image_mode=True,
+    max_num_faces=1,
+    refine_landmarks=True,
+    min_detection_confidence=0.5
+)
 import base64
 import numpy as np
 import cv2
@@ -57,79 +67,94 @@ def detect_skin(img):
 
 def get_hotspots(img, mask_red, mask_brown, mask_white, laplacian_img):
     hotspots = []
+    h, w = img.shape[:2]
     
+    # --- Part 1: Anatomical Landmarks (Anatomy Detect) ---
+    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(rgb_img)
+    
+    face_detected = False
+    if results.multi_face_landmarks:
+        face_detected = True
+        landmarks = results.multi_face_landmarks[0].landmark
+        
+        # Helper to get x,y as percentage
+        def gp(idx):
+            return round(landmarks[idx].x * 100, 1), round(landmarks[idx].y * 100, 1)
+
+        # Define parts to detect
+        anatomical_map = [
+            {"idx": 10, "label": "Forehead", "type": "anatomy", "desc": "Upper facial region"},
+            {"idx": 1, "label": "Nose Tip", "type": "anatomy", "desc": "Central nasal apex"},
+            {"idx": 33, "label": "Left Eye", "type": "anatomy", "desc": "Ocular region (L)"},
+            {"idx": 263, "label": "Right Eye", "type": "anatomy", "desc": "Ocular region (R)"},
+            {"idx": 0, "label": "Upper Lip", "type": "anatomy", "desc": "Superior labial border"},
+            {"idx": 17, "label": "Lower Lip", "type": "anatomy", "desc": "Inferior labial border"},
+            {"idx": 123, "label": "Left Cheek", "type": "anatomy", "desc": "Zygomatic region (L)"},
+            {"idx": 352, "label": "Right Cheek", "type": "anatomy", "desc": "Zygomatic region (R)"},
+            {"idx": 13, "label": "Teeth/Mouth", "type": "anatomy", "desc": "Oral cavity area"}
+        ]
+
+        for part in anatomical_map:
+            px, py = gp(part["idx"])
+            hotspots.append({
+                "x": px,
+                "y": py,
+                "label": part["label"],
+                "type": "anatomy",
+                "guidance": f"Analysis for the {part['label']} area focusing on {part['desc']}.",
+                "problem": "Anatomical landmark verified by AI.",
+                "solution": "Monitoring standard clinical benchmarks for this region."
+            })
+
+    # --- Part 2: Symptom Detection (Clustering) ---
     # 1. Inflammation (Red Areas)
     contours, _ = cv2.findContours(mask_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         best_c = sorted(contours, key=cv2.contourArea, reverse=True)
-        for c in best_c[:2]: # Top 2 inflamed spots
-            if cv2.contourArea(c) > 40: # Lowered from 100
+        for c in best_c[:2]: 
+            if cv2.contourArea(c) > 40:
                 M = cv2.moments(c)
                 if M["m00"] != 0:
-                    cx = int(M["m10"] / M["m00"])
-                    cy = int(M["m01"] / M["m00"])
+                    cx, cy = int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"])
                     hotspots.append({
-                        "x": round((cx / img.shape[1]) * 100, 1),
-                        "y": round((cy / img.shape[0]) * 100, 1),
+                        "x": round((cx / w) * 100, 1),
+                        "y": round((cy / h) * 100, 1),
                         "label": "Inflammation Patch",
-                        "guidance": "Affected area shows active redness and irritation. Avoid scratching to prevent secondary infection.",
-                        "problem": "Active inflammatory phase possibly due to acne or acute dermatitis.",
-                        "solution": "Apply a soothing calamine lotion or a mild anti-inflammatory cream. Consult if heat persists."
+                        "type": "symptom",
+                        "guidance": "Affected area shows active redness and irritation. Avoid scratching.",
+                        "problem": "Active inflammatory phase.",
+                        "solution": "Apply a soothing calamine lotion."
                     })
 
-    # 2. Pigmentation (Brown Areas)
+    # 2. Hyperpigmentation
     contours, _ = cv2.findContours(mask_brown, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         best_c = sorted(contours, key=cv2.contourArea, reverse=True)
-        for c in best_c[:2]: # Top 2 brown spots
-            if cv2.contourArea(c) > 30: # Lowered from 50
+        for c in best_c[:2]:
+            if cv2.contourArea(c) > 30:
                 M = cv2.moments(c)
                 if M["m00"] != 0:
-                    cx = int(M["m10"] / M["m00"])
-                    cy = int(M["m01"] / M["m00"])
+                    cx, cy = int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"])
                     hotspots.append({
-                        "x": round((cx / img.shape[1]) * 100, 1),
-                        "y": round((cy / img.shape[0]) * 100, 1),
+                        "x": round((cx / w) * 100, 1),
+                        "y": round((cy / h) * 100, 1),
                         "label": "Hyperpigmentation",
-                        "guidance": "Observe for changes in diameter or edge regularity over time.",
-                        "problem": "Localized melanin buildup or post-inflammatory marks.",
-                        "solution": "Use broad-spectrum sunscreen. If the spot is new or growing, seek a clinical audit."
+                        "type": "symptom",
+                        "guidance": "Observe for changes in diameter over time.",
+                        "problem": "Localized melanin buildup.",
+                        "solution": "Use broad-spectrum sunscreen."
                     })
 
-    # 3. Texture/Scaling (Laplacian variance hotspots)
-    h, w = laplacian_img.shape
-    step_h, step_w = h // 4, w // 4
-    for i in range(4):
-        for j in range(4):
-            roi = laplacian_img[i*step_h:(i+1)*step_h, j*step_w:(j+1)*step_w]
-            var = np.var(roi)
-            if var > 200: # Lower threshold for texture detection
-                hotspots.append({
-                    "x": round(((j*step_w + step_w//2) / w) * 100, 1),
-                    "y": round(((i*step_h + step_h//2) / h) * 100, 1),
-                    "label": "Texture Irregularity",
-                    "guidance": "Scaling or dryness detected in this localized patch.",
-                    "problem": "Indicative of psoriasis-like scaling or chronic xerosis.",
-                    "solution": "Hydrate the area with a urea-based emollient. Avoid harsh soaps."
-                })
-
-    # 4. Fallback: General Skin Health (If no specific symptoms detected)
+    # 3. Fallback: If nothing else detected
     if not hotspots:
-        # Find the center of the skin mask
-        M = cv2.moments(mask_red | mask_brown | mask_white) # Use any mask or just a center point
-        if M["m00"] != 0:
-            cx = int(M["m10"] / M["m00"])
-            cy = int(M["m01"] / M["m00"])
-        else:
-            cx, cy = w // 2, h // 2
-            
         hotspots.append({
-            "x": round((cx / w) * 100, 1),
-            "y": round((cy / h) * 100, 1),
-            "label": "Core Assessment Area",
-            "guidance": "No major localized pathologies detected. Maintain standard skincare routine.",
-            "problem": "General skin surfaces appear within clinical baseline.",
-            "solution": "Use a daily moisturizer and SPF30+. Stay hydrated and monitor for new spots."
+            "x": 50, "y": 50,
+            "label": "General Assessment",
+            "type": "general",
+            "guidance": "No major localized pathologies detected.",
+            "problem": "Skin appears within clinical baseline.",
+            "solution": "Maintain hydration and sun protection."
         })
 
     return hotspots
