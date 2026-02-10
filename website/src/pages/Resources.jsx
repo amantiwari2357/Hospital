@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Navbar from '../components/layout/Navbar';
 import { motion } from 'framer-motion';
 import {
@@ -95,7 +95,7 @@ const Resources = () => {
                                         </div>
                                         <div>
                                             <h4 className="font-black text-slate-800 italic uppercase text-sm">{item.name}</h4>
-                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">{item.type} • {item.size}</p>
+                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">{item.type} â€¢ {item.size}</p>
                                         </div>
                                     </div>
                                     <ChevronRight className="w-6 h-6 text-slate-200 group-hover:text-medical-600 group-hover:translate-x-2 transition-all" />

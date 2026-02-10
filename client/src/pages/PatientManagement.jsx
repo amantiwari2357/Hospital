@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout/Layout';
 import {
@@ -44,7 +44,7 @@ const PatientManagement = () => {
                     headers: { Authorization: `Bearer ${userInfo.token}` },
                 };
 
-                const { data } = await axios.get('http://localhost:5000/api/stats/dashboard', config);
+                const { data } = await axios.get('https://hospital-40m0.onrender.com/api/stats/dashboard', config);
                 setStats(data.patientStats);
 
                 // Map backend patients to table format
@@ -122,7 +122,7 @@ const PatientManagement = () => {
                     <StatCard
                         title="OPD Today"
                         value={stats?.opdToday?.toLocaleString() || '0'}
-                        change="↘ 0.5%"
+                        change="â†˜ 0.5%"
                         icon={Activity}
                         color="bg-orange-500"
                     />
@@ -191,7 +191,7 @@ const PatientManagement = () => {
                                                 )}
                                                 <div>
                                                     <p className="text-sm font-black text-gray-900 leading-tight">{p.name}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 mt-0.5 uppercase tracking-widest">Age: {p.age} • {p.gender}</p>
+                                                    <p className="text-[10px] font-bold text-gray-400 mt-0.5 uppercase tracking-widest">Age: {p.age} â€¢ {p.gender}</p>
                                                 </div>
                                             </div>
                                         </td>

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ShoppingCart, Star, ShieldCheck, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
@@ -33,7 +33,7 @@ const MedicineCard = ({ medicine }) => {
                     <h3 className="text-lg font-black text-slate-900 leading-tight group-hover:text-medical-600 transition-colors">
                         {medicine.name}
                     </h3>
-                    <span className="text-xl font-black text-medical-600">₹{medicine.price}</span>
+                    <span className="text-xl font-black text-medical-600">â‚¹{medicine.price}</span>
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 bg-slate-50 inline-block px-3 py-1 rounded-full border border-slate-100">
                     {medicine.category}

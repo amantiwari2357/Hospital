@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     Users, AlertCircle, Pill, ClipboardCheck,
     Calendar, TrendingUp, Heart, ChevronRight,
@@ -47,7 +47,7 @@ const NurseDashboard = () => {
                     <StatCard
                         title="Assigned Patients"
                         value="8"
-                        subtext="↑ 1 Pending Discharge"
+                        subtext="â†‘ 1 Pending Discharge"
                         subColor="text-orange-500"
                         icon={Users}
                         color="blue"

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Navbar from '../components/layout/Navbar';
 import { Users, FileCheck, ShieldCheck, Database, ArrowRight, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';

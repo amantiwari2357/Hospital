@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import {
     Package,
@@ -46,7 +46,7 @@ const MedicineManager = () => {
 
     const fetchMedicines = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/medicines');
+            const response = await fetch('https://hospital-40m0.onrender.com/api/medicines');
             const data = await response.json();
             setMedicines(data);
         } catch (error) {
@@ -68,7 +68,7 @@ const MedicineManager = () => {
         e.preventDefault();
         try {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            const response = await fetch('http://localhost:5000/api/medicines', {
+            const response = await fetch('https://hospital-40m0.onrender.com/api/medicines', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ const MedicineManager = () => {
                                             </div>
                                         </td>
                                         <td className="py-6 px-8 font-bold text-gray-600 text-sm uppercase">{m.category}</td>
-                                        <td className="py-6 px-8 font-black text-gray-900 text-lg">₹{m.price}</td>
+                                        <td className="py-6 px-8 font-black text-gray-900 text-lg">â‚¹{m.price}</td>
                                         <td className="py-6 px-8">
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${m.inStock ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
                                                 {m.inStock ? 'In Stock' : 'Out of Stock'}

@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     Search, Plus, Filter, MoreVertical,
     ChevronLeft, ChevronRight, Phone, Calendar,
@@ -20,7 +20,7 @@ const PatientRow = ({ name, age, gender, mrn, phone, phoneType, lastVisit, lastV
             </div>
             <div className="w-[200px]">
                 <h4 className="text-base font-black text-gray-900 tracking-tight">{name}</h4>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">{age} yrs • {gender}</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">{age} yrs â€¢ {gender}</p>
             </div>
         </div>
 
@@ -80,7 +80,7 @@ const PatientDirectory = () => {
                         <h2 className="text-4xl font-black text-gray-900 tracking-tight">Patient Directory</h2>
                         <p className="text-sm font-medium text-gray-500 mt-2 flex items-center gap-3 italic">
                             <Calendar className="w-4 h-4 text-gray-400" />
-                            Monday, Oct 23, 2023 • Reception Desk A
+                            Monday, Oct 23, 2023 â€¢ Reception Desk A
                         </p>
                     </div>
                     <button className="flex items-center gap-2 px-8 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-black text-gray-700 hover:bg-gray-50 transition-all shadow-sm">

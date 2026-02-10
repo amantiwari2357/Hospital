@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+﻿import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         const { data } = await axios.post(
-            'http://localhost:5000/api/auth/login',
+            'https://hospital-40m0.onrender.com/api/auth/login',
             { email, password },
             config
         );

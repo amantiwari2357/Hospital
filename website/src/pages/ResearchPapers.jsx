@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Navbar from '../components/layout/Navbar';
 import { motion } from 'framer-motion';
 import {
@@ -124,7 +124,7 @@ const ResearchPapers = () => {
                                 </h3>
                                 <div className="flex items-center gap-4 text-slate-500 font-bold italic text-sm mb-12">
                                     <Database className="w-4 h-4 text-medical-500" />
-                                    <span>{paper.author} • {paper.journal}</span>
+                                    <span>{paper.author} â€¢ {paper.journal}</span>
                                 </div>
                             </div>
 

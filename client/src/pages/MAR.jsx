@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     AlertCircle, Clock, Pill, CheckCircle2,
     Search, Calendar, Filter, User, MoreVertical,
@@ -148,7 +148,7 @@ const MAR = () => {
                                     name="Lisinopril"
                                     type="ACE Inhibitor"
                                     dose="10mg"
-                                    freq="Oral (Tablet) • Daily"
+                                    freq="Oral (Tablet) â€¢ Daily"
                                     time="09:00 AM"
                                     note="Hold if SBP < 100"
                                     status="due"
@@ -157,7 +157,7 @@ const MAR = () => {
                                     name="Metformin"
                                     type="Antidiabetic"
                                     dose="500mg"
-                                    freq="Oral (Tablet) • BID (Twice Daily)"
+                                    freq="Oral (Tablet) â€¢ BID (Twice Daily)"
                                     time="09:00 AM"
                                     note="Instruction: Take with food"
                                     status="due"
@@ -178,7 +178,7 @@ const MAR = () => {
                                     name="Vancomycin"
                                     type="Antibiotic"
                                     dose="1g"
-                                    freq="IV Drip • Q12H"
+                                    freq="IV Drip â€¢ Q12H"
                                     time="02:00 PM"
                                     note="Alert: Monitor Trough Levels"
                                     status="upcoming"
@@ -199,7 +199,7 @@ const MAR = () => {
                                     name="Acetaminophen"
                                     type="Analgesic"
                                     dose="650mg"
-                                    freq="Oral • PRN"
+                                    freq="Oral â€¢ PRN"
                                     time="07:42 AM"
                                     note="Given by Nurse Ratched"
                                     status="administered"

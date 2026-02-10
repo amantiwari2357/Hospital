@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     User, Mail, Phone, MapPin, Calendar,
     Home, ChevronRight, UserPlus, Info,

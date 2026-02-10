@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import { Search, Filter, Download, Plus, MoreVertical, Eye, Edit, Send, Calendar, Clock, DollarSign, ChevronDown } from 'lucide-react';
 
 const invoices = [
@@ -41,7 +41,7 @@ const Invoices = () => {
                             <div>
                                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Total Outstanding</p>
                                 <h3 className="text-4xl font-black text-white">$45,230.00</h3>
-                                <p className="text-[10px] font-bold text-green-400 mt-2">↑ 2.5% <span className="text-gray-500 lowercase italic ml-1">vs last month</span></p>
+                                <p className="text-[10px] font-bold text-green-400 mt-2">â†‘ 2.5% <span className="text-gray-500 lowercase italic ml-1">vs last month</span></p>
                             </div>
                             <div className="p-4 bg-gray-800/50 rounded-2xl group-hover:scale-110 transition-transform">
                                 <DollarSign className="w-8 h-8 text-blue-500" />
@@ -51,7 +51,7 @@ const Invoices = () => {
                             <div>
                                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Collected Today</p>
                                 <h3 className="text-4xl font-black text-white">$12,450.00</h3>
-                                <p className="text-[10px] font-bold text-green-400 mt-2">↑ 12% <span className="text-gray-500 lowercase italic ml-1">from yesterday</span></p>
+                                <p className="text-[10px] font-bold text-green-400 mt-2">â†‘ 12% <span className="text-gray-500 lowercase italic ml-1">from yesterday</span></p>
                             </div>
                             <div className="p-4 bg-gray-800/50 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Calendar className="w-8 h-8 text-cyan-500" />
@@ -61,7 +61,7 @@ const Invoices = () => {
                             <div>
                                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Overdue Invoices</p>
                                 <h3 className="text-4xl font-black text-white">8</h3>
-                                <p className="text-[10px] font-bold text-orange-400 mt-2">↓ 1% <span className="text-gray-500 lowercase italic ml-1">last 7 days</span></p>
+                                <p className="text-[10px] font-bold text-orange-400 mt-2">â†“ 1% <span className="text-gray-500 lowercase italic ml-1">last 7 days</span></p>
                             </div>
                             <div className="p-4 bg-gray-800/50 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Clock className="w-8 h-8 text-orange-500" />

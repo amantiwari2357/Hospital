@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Navbar from '../components/layout/Navbar';
 import { ShieldCheck, Target, Heart, Award, Users, Microscope, Globe, History, Activity, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';

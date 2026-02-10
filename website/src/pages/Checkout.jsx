@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/layout/Navbar';
@@ -61,7 +61,7 @@ const Checkout = () => {
                 totalAmount: cartTotal
             };
 
-            const response = await fetch('http://localhost:5000/api/orders', {
+            const response = await fetch('https://hospital-40m0.onrender.com/api/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -241,7 +241,7 @@ const Checkout = () => {
                                                 </div>
                                                 <div className="flex-grow">
                                                     <p className="font-black text-slate-900 text-[10px] uppercase leading-tight line-clamp-2">{item.name}</p>
-                                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">₹{item.price * item.quantity}</p>
+                                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">â‚¹{item.price * item.quantity}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -250,7 +250,7 @@ const Checkout = () => {
                                     <div className="space-y-4 pt-6 border-t font-bold uppercase text-[10px] tracking-widest">
                                         <div className="flex justify-between text-slate-400">
                                             <span>Subtotal</span>
-                                            <span>₹{cartTotal}</span>
+                                            <span>â‚¹{cartTotal}</span>
                                         </div>
                                         <div className="flex justify-between text-slate-400">
                                             <span>Shipping Cost</span>
@@ -258,7 +258,7 @@ const Checkout = () => {
                                         </div>
                                         <div className="flex justify-between text-slate-900 pt-4 text-sm font-black italic">
                                             <span className="tracking-tighter">Total Amount</span>
-                                            <span className="text-2xl tracking-tighter">₹{cartTotal}</span>
+                                            <span className="text-2xl tracking-tighter">â‚¹{cartTotal}</span>
                                         </div>
                                     </div>
 

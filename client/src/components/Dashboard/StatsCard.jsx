@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown } from 'lucide-react';
+﻿import { TrendingUp, TrendingDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const StatsCard = ({ title, value, change, icon: Icon, color = 'blue', status }) => {

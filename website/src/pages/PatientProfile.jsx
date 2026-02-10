@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import {
     User,
@@ -38,7 +38,7 @@ const PatientProfile = () => {
         const fetchData = async () => {
             try {
                 // Fetch Profile
-                const profileRes = await fetch('http://localhost:5000/api/patient-portal/profile', {
+                const profileRes = await fetch('https://hospital-40m0.onrender.com/api/patient-portal/profile', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const profileData = await profileRes.json();
@@ -48,7 +48,7 @@ const PatientProfile = () => {
                     setUser(profileData.data);
 
                     // Fetch Appointments
-                    const fetchUrl = `http://localhost:5000/api/appointments?patientPortalId=${profileData.data._id}`;
+                    const fetchUrl = `https://hospital-40m0.onrender.com/api/appointments?patientPortalId=${profileData.data._id}`;
                     console.log("Fetching appointments from:", fetchUrl);
 
                     const apptRes = await fetch(fetchUrl, {
@@ -61,7 +61,7 @@ const PatientProfile = () => {
                     }
 
                     // Fetch Orders
-                    const orderRes = await fetch('http://localhost:5000/api/orders/myorders', {
+                    const orderRes = await fetch('https://hospital-40m0.onrender.com/api/orders/myorders', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (orderRes.ok) {
@@ -257,13 +257,13 @@ const PatientProfile = () => {
                                                     <p className="font-black text-slate-800 italic uppercase">
                                                         {order.orderItems.map(i => i.name).join(', ')}
                                                     </p>
-                                                    <p className="text-[10px] text-slate-400 font-bold italic">Order ID: #{order._id.slice(-6)} • {new Date(order.createdAt).toLocaleDateString()}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold italic">Order ID: #{order._id.slice(-6)} â€¢ {new Date(order.createdAt).toLocaleDateString()}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center justify-between md:justify-end gap-12 italic">
                                                 <div className="text-right italic">
                                                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic leading-none mb-1">Total</p>
-                                                    <p className="text-lg font-black text-slate-900 italic">₹{order.totalAmount}</p>
+                                                    <p className="text-lg font-black text-slate-900 italic">â‚¹{order.totalAmount}</p>
                                                 </div>
                                                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest italic ${order.status === 'Delivered' ? 'bg-green-100 text-green-600' : 'bg-medical-100 text-medical-600'}`}>
                                                     {order.status}
@@ -299,7 +299,7 @@ const PatientProfile = () => {
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-6 italic">{appt.department}</p>
                                             <div className="flex items-center gap-4 pt-6 border-t border-slate-200/50 italic">
                                                 <p className="text-sm font-black text-slate-700 italic">{new Date(appt.date).toLocaleDateString()}</p>
-                                                <span className="text-slate-300">•</span>
+                                                <span className="text-slate-300">â€¢</span>
                                                 <p className="text-sm font-black text-slate-700 italic">{appt.time}</p>
                                             </div>
                                         </div>

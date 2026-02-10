@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -62,7 +62,7 @@ const CartDrawer = () => {
                                         </div>
                                         <div className="flex-grow">
                                             <h3 className="font-black text-slate-900 text-sm uppercase leading-tight mb-1">{item.name}</h3>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">₹{item.price}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">â‚¹{item.price}</p>
 
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-200">
@@ -88,7 +88,7 @@ const CartDrawer = () => {
                             <div className="p-8 bg-slate-50 border-t border-slate-100">
                                 <div className="flex justify-between items-center mb-6">
                                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Total Amount</p>
-                                    <p className="text-3xl font-black text-medical-600 tracking-tight italic">₹{cartTotal}</p>
+                                    <p className="text-3xl font-black text-medical-600 tracking-tight italic">â‚¹{cartTotal}</p>
                                 </div>
                                 <Link
                                     to="/checkout"

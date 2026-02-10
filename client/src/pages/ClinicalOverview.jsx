@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import Layout from '../components/Layout/Layout';
 import {
     Activity, Heart, Thermometer, User,
@@ -18,13 +18,13 @@ const ClinicalOverview = () => {
         { label: 'BLOOD PRESSURE', value: '120/80', unit: 'mmHg', status: 'Normal', icon: Heart, color: 'text-blue-500 bg-blue-50', trend: 'stable' },
         { label: 'HEART RATE', value: '72', unit: 'bpm', status: 'Last checked: 15m ago', icon: Activity, color: 'text-red-500 bg-red-50', trend: 'stable' },
         { label: 'SPO2', value: '98', unit: '%', status: 'Steady', icon: Wind, color: 'text-cyan-500 bg-cyan-50', trend: 'stable' },
-        { label: 'TEMPERATURE', value: '36.8', unit: '°C', status: 'Oral', icon: Thermometer, color: 'text-orange-500 bg-orange-50', trend: 'stable' },
+        { label: 'TEMPERATURE', value: '36.8', unit: 'Â°C', status: 'Oral', icon: Thermometer, color: 'text-orange-500 bg-orange-50', trend: 'stable' },
     ];
 
     const tasks = [
-        { label: 'Collect Blood Sample', sub: 'CBC & Troponin I • Due 14:00', done: false, type: 'urgent' },
-        { label: 'Vitals Check', sub: 'Hourly Monitoring • Due 14:30', done: false },
-        { label: 'Administer Aspirin', sub: '300mg Stat • Done 09:15', done: true },
+        { label: 'Collect Blood Sample', sub: 'CBC & Troponin I â€¢ Due 14:00', done: false, type: 'urgent' },
+        { label: 'Vitals Check', sub: 'Hourly Monitoring â€¢ Due 14:30', done: false },
+        { label: 'Administer Aspirin', sub: '300mg Stat â€¢ Done 09:15', done: true },
     ];
 
     return (
@@ -87,7 +87,7 @@ const ClinicalOverview = () => {
                             <div className="flex-1">
                                 <div className="flex items-center gap-3">
                                     <h4 className="text-xs font-black text-gray-900 tracking-tight uppercase">System Alert: NPO Status</h4>
-                                    <span className="text-[10px] font-black text-gray-400">• 10:00 AM Today</span>
+                                    <span className="text-[10px] font-black text-gray-400">â€¢ 10:00 AM Today</span>
                                 </div>
                                 <p className="text-xs font-medium text-gray-500 mt-1">Patient is NPO (Nothing by Mouth) since 10:00 AM in preparation for scheduled Angiography at 14:00.</p>
                             </div>
@@ -219,7 +219,7 @@ const ClinicalOverview = () => {
                                     </div>
                                     <div className="relative z-10">
                                         <h5 className="text-xs font-black text-gray-900 tracking-tight leading-none uppercase">Normal Saline (0.9%)</h5>
-                                        <p className="text-[10px] font-bold text-gray-500 mt-2 lowercase italic tracking-tight">@ 100ml/hr • Started 10:30</p>
+                                        <p className="text-[10px] font-bold text-gray-500 mt-2 lowercase italic tracking-tight">@ 100ml/hr â€¢ Started 10:30</p>
                                     </div>
                                 </div>
                             </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Shield } from 'lucide-react';
@@ -86,7 +86,7 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    placeholder="••••••••"
+                                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                     required
                                 />
                                 <button
@@ -129,7 +129,7 @@ const Login = () => {
                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             ) : (
                                 <>
-                                    <span>→</span>
+                                    <span>â†’</span>
                                     <span>Sign In</span>
                                 </>
                             )}
@@ -162,10 +162,10 @@ const Login = () => {
 
                 {/* Copyright */}
                 <div className="mt-6 text-center text-xs text-gray-500">
-                    <p>© 2024 HMS Enterprise. All rights reserved.</p>
+                    <p>Â© 2024 HMS Enterprise. All rights reserved.</p>
                     <div className="mt-2 space-x-4">
                         <a href="#" className="hover:text-gray-700">Privacy Policy</a>
-                        <span>•</span>
+                        <span>â€¢</span>
                         <a href="#" className="hover:text-gray-700">Help Center</a>
                     </div>
                 </div>

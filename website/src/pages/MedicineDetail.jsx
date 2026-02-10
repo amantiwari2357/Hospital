@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import { medicinesData } from '../utils/medicinesData';
@@ -106,7 +106,7 @@ const MedicineDetail = () => {
                             <div className="flex items-center gap-8 mb-10">
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Unit Price</p>
-                                    <p className="text-4xl font-black text-medical-600 leading-none">₹{medicine.price}</p>
+                                    <p className="text-4xl font-black text-medical-600 leading-none">â‚¹{medicine.price}</p>
                                 </div>
                                 <div className="h-10 w-px bg-slate-100" />
                                 <div>
@@ -151,7 +151,7 @@ const MedicineDetail = () => {
                                                 </div>
                                                 <div className="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center italic">
                                                     <span className="text-slate-400 font-bold text-xs uppercase">Bill Amount</span>
-                                                    <span className="font-black text-medical-600 tracking-widest">₹{medicine.price + 50} <span className="text-[10px] text-slate-400">(incl. Delivery)</span></span>
+                                                    <span className="font-black text-medical-600 tracking-widest">â‚¹{medicine.price + 50} <span className="text-[10px] text-slate-400">(incl. Delivery)</span></span>
                                                 </div>
                                             </div>
                                             <button

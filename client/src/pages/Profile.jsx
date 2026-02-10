@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import ProfileForm from '../components/Profile/ProfileForm';
 import WeeklySchedule from '../components/Profile/WeeklySchedule';
 import { Save, Users, Star } from 'lucide-react';
@@ -26,7 +26,7 @@ const Profile = () => {
                     const config = {
                         headers: { Authorization: `Bearer ${userInfo.token}` }
                     };
-                    const response = await fetch(`http://localhost:5000/api/appointments?doctor=${encodeURIComponent(user.name)}`, config);
+                    const response = await fetch(`https://hospital-40m0.onrender.com/api/appointments?doctor=${encodeURIComponent(user.name)}`, config);
                     const data = await response.json();
                     setAppointments(Array.isArray(data) ? data : []);
 

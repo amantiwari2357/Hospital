@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { X, Search, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import axios from 'axios';
 
@@ -24,7 +24,7 @@ const BookingModal = ({ isOpen, onClose, onSuccess }) => {
                 },
             };
 
-            await axios.post('http://localhost:5000/api/appointments', formData, config);
+            await axios.post('https://hospital-40m0.onrender.com/api/appointments', formData, config);
             onSuccess();
             onClose();
         } catch (error) {

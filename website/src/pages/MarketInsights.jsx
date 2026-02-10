@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Navbar from '../components/layout/Navbar';
 import { marketTrends, priceComparisons } from '../utils/marketData';
 import {
@@ -85,11 +85,11 @@ const MarketInsights = () => {
                                         <div className="flex items-center gap-12">
                                             <div className="text-center">
                                                 <p className="text-[9px] text-slate-400 font-black uppercase mb-1">Brand Price</p>
-                                                <p className="font-black text-slate-500 line-through text-sm">₹{item.brandPrice}</p>
+                                                <p className="font-black text-slate-500 line-through text-sm">â‚¹{item.brandPrice}</p>
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-[9px] text-slate-400 font-black uppercase mb-1">Generic Price</p>
-                                                <p className="font-black text-medical-600 text-lg">₹{item.genericPrice}</p>
+                                                <p className="font-black text-medical-600 text-lg">â‚¹{item.genericPrice}</p>
                                             </div>
                                             <div className="bg-medical-500 text-white px-4 py-2 rounded-xl text-center shadow-lg shadow-medical-100">
                                                 <p className="text-[8px] font-black uppercase leading-none mb-1">Save</p>

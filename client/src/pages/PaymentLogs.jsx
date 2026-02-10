@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     Search, Filter, ChevronDown, Download,
     Printer, CreditCard, Clock, AlertCircle,
@@ -30,12 +30,12 @@ const StatCard = ({ title, value, change, trend, icon: Icon, color }) => (
 
 const PaymentLogs = () => {
     const logs = [
-        { id: '#PYT-8821', date: 'Oct 24, 2023', time: '14:30', patient: 'Sarah Jenkins', invoice: '#INV-2023-001', mode: 'Visa •••• 4242', amount: '$450.00', status: 'Success' },
+        { id: '#PYT-8821', date: 'Oct 24, 2023', time: '14:30', patient: 'Sarah Jenkins', invoice: '#INV-2023-001', mode: 'Visa â€¢â€¢â€¢â€¢ 4242', amount: '$450.00', status: 'Success' },
         { id: '#PYT-8820', date: 'Oct 24, 2023', time: '11:15', patient: 'Michael Chen', invoice: '#INV-2023-002', mode: 'Cash', amount: '$120.00', status: 'Pending' },
         { id: '#PYT-8819', date: 'Oct 23, 2023', time: '09:45', patient: 'Robert Fox', invoice: '#INV-2023-001', mode: 'Online Transfer', amount: '$1,250.00', status: 'Failed' },
-        { id: '#PYT-8818', date: 'Oct 23, 2023', time: '09:12', patient: 'Eleanor Pena', invoice: '#INV-2023-003', mode: 'MasterCard •••• 9921', amount: '$450.00', status: 'Refunded' },
+        { id: '#PYT-8818', date: 'Oct 23, 2023', time: '09:12', patient: 'Eleanor Pena', invoice: '#INV-2023-003', mode: 'MasterCard â€¢â€¢â€¢â€¢ 9921', amount: '$450.00', status: 'Refunded' },
         { id: '#PYT-8817', date: 'Oct 22, 2023', time: '16:20', patient: 'Wade Warren', invoice: '#INV-2023-004', mode: 'Insurance', amount: '$3,200.00', status: 'Success' },
-        { id: '#PYT-8816', date: 'Oct 22, 2023', time: '13:10', patient: 'Jenny Wilson', invoice: '#INV-2023-005', mode: 'Visa •••• 1122', amount: '$85.00', status: 'Success' },
+        { id: '#PYT-8816', date: 'Oct 22, 2023', time: '13:10', patient: 'Jenny Wilson', invoice: '#INV-2023-005', mode: 'Visa â€¢â€¢â€¢â€¢ 1122', amount: '$85.00', status: 'Success' },
     ];
 
     return (

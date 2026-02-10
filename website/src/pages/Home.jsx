@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Hero from '../components/home/Hero';
 import ChatWidget from '../components/shared/ChatWidget';
@@ -48,8 +48,8 @@ const Home = () => {
         const fetchData = async () => {
             try {
                 const [drRes, disRes] = await Promise.all([
-                    fetch('http://localhost:5000/api/appointments/doctors'),
-                    fetch('http://localhost:5000/api/diseases')
+                    fetch('https://hospital-40m0.onrender.com/api/appointments/doctors'),
+                    fetch('https://hospital-40m0.onrender.com/api/diseases')
                 ]);
                 const drData = await drRes.json();
                 const disData = await disRes.json();
@@ -313,10 +313,10 @@ const Home = () => {
                                 </div>
                                 <div className="lg:w-1/2 grid grid-cols-2 gap-4">
                                     {[
-                                        { label: 'Avg. Response', val: '12m', icon: '⚡' },
-                                        { label: 'Active Fleet', val: '150+', icon: '🚐' },
-                                        { label: 'Critical Care', val: '24/7', icon: '🏥' },
-                                        { label: 'Live Tracking', val: 'GPS', icon: '📍' }
+                                        { label: 'Avg. Response', val: '12m', icon: 'âš¡' },
+                                        { label: 'Active Fleet', val: '150+', icon: 'ðŸš' },
+                                        { label: 'Critical Care', val: '24/7', icon: 'ðŸ¥' },
+                                        { label: 'Live Tracking', val: 'GPS', icon: 'ðŸ“' }
                                     ].map((stat, i) => (
                                         <div key={i} className="bg-white/5 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white/10 hover:bg-white/10 transition-colors">
                                             <div className="text-3xl mb-4">{stat.icon}</div>

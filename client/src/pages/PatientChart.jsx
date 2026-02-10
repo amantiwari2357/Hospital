@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     Activity, Clock, FileText, CheckCircle2,
     MoreVertical, Plus, User, Send, Shield,
@@ -31,7 +31,7 @@ const TimelineEntry = ({ time, author, role, content, type }) => (
             <div className="flex items-center gap-3 mb-2">
                 <span className="text-xs font-black text-gray-500 tracking-tight">{time}</span>
                 <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${role === 'Nurse' ? 'bg-blue-500/10 text-blue-400' : 'bg-purple-500/10 text-purple-400'}`}>
-                    {author} • {role}
+                    {author} â€¢ {role}
                 </span>
             </div>
             {type === 'start' ? (
@@ -84,7 +84,7 @@ const PatientChart = () => {
                                 <span className="px-4 py-1.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest">Stable</span>
                             </div>
                             <div className="flex flex-wrap items-center gap-8 text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] italic">
-                                <span className="flex items-center gap-2"><div className="w-4 h-4 bg-gray-800 rounded flex items-center justify-center text-[8px] text-gray-500">🛏️</div> Bed: 204-A</span>
+                                <span className="flex items-center gap-2"><div className="w-4 h-4 bg-gray-800 rounded flex items-center justify-center text-[8px] text-gray-500">ðŸ›ï¸</div> Bed: 204-A</span>
                                 <span className="flex items-center gap-2 text-blue-400"><div className="w-4 h-4 bg-blue-500/10 rounded flex items-center justify-center text-[8px] text-blue-400">#</div> MRN: #839210</span>
                                 <span className="flex items-center gap-2 text-red-400"><AlertTriangle className="w-3 h-3" /> Allergies: Penicillin</span>
                             </div>
@@ -98,12 +98,12 @@ const PatientChart = () => {
                             {[
                                 { label: 'Heart Rate', value: '88', unit: 'bpm', trend: 'up' },
                                 { label: 'Blood Pressure', value: '120/80', unit: 'mmHg' },
-                                { label: 'Temp', value: '98.6', unit: '°F' },
+                                { label: 'Temp', value: '98.6', unit: 'Â°F' },
                                 { label: 'SpO2', value: '96', unit: '%' },
                             ].map((stat, i) => (
                                 <div key={i} className="bg-[#0f172a] p-4 rounded-3xl border border-gray-800 flex flex-col gap-1 min-w-[120px]">
                                     <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
-                                        {stat.label === 'Heart Rate' ? <Activity className="w-3 h-3 text-red-500" /> : stat.label === 'Temp' ? '🔥' : '💧'} {stat.label}
+                                        {stat.label === 'Heart Rate' ? <Activity className="w-3 h-3 text-red-500" /> : stat.label === 'Temp' ? 'ðŸ”¥' : 'ðŸ’§'} {stat.label}
                                     </p>
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-xl font-black text-white">{stat.value}</span>
@@ -130,14 +130,14 @@ const PatientChart = () => {
                         <div className="space-y-10">
                             <div className="space-y-4">
                                 <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest border-b border-gray-800 pb-2">Morning (08:00 - 12:00)</p>
-                                <ChecklistItem title="Morning Vitals Check" time="08:00 AM • Completed" completed={true} />
-                                <ChecklistItem title="IV Fluid Replacement" time="09:00 AM • NS 500ml" completed={false} />
-                                <ChecklistItem title="Wound Dressing Change" time="10:00 AM • Left Leg" completed={false} />
+                                <ChecklistItem title="Morning Vitals Check" time="08:00 AM â€¢ Completed" completed={true} />
+                                <ChecklistItem title="IV Fluid Replacement" time="09:00 AM â€¢ NS 500ml" completed={false} />
+                                <ChecklistItem title="Wound Dressing Change" time="10:00 AM â€¢ Left Leg" completed={false} />
                             </div>
                             <div className="space-y-4 opacity-50">
                                 <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest border-b border-gray-800 pb-2">Afternoon (12:00 - 16:00)</p>
-                                <ChecklistItem title="Lunch & Insulin" time="12:30 PM • Sliding Scale" completed={false} />
-                                <ChecklistItem title="Hourly Rounding" time="02:00 PM • 4Ps Check" completed={false} />
+                                <ChecklistItem title="Lunch & Insulin" time="12:30 PM â€¢ Sliding Scale" completed={false} />
+                                <ChecklistItem title="Hourly Rounding" time="02:00 PM â€¢ 4Ps Check" completed={false} />
                             </div>
                         </div>
 
@@ -194,7 +194,7 @@ const PatientChart = () => {
                                 ></textarea>
                                 <div className="absolute bottom-4 right-4 flex gap-2">
                                     <button className="p-2 text-gray-600 hover:text-blue-500 transition-colors"><Activity className="w-4 h-4" /></button>
-                                    <button className="p-2 text-gray-600 hover:text-blue-500 transition-colors">🚩</button>
+                                    <button className="p-2 text-gray-600 hover:text-blue-500 transition-colors">ðŸš©</button>
                                 </div>
                             </div>
                         </div>

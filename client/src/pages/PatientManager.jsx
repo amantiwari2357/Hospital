@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import {
     User,
@@ -52,7 +52,7 @@ const PatientManager = () => {
 
     const fetchPatients = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/patient-portal/all');
+            const response = await fetch('https://hospital-40m0.onrender.com/api/patient-portal/all');
             const data = await response.json();
             if (data.success) {
                 setPatients(data.data);
@@ -76,7 +76,7 @@ const PatientManager = () => {
         e.preventDefault();
         setIsSaving(true);
         try {
-            const response = await fetch(`http://localhost:5000/api/patient-portal/update/${editFormData._id}`, {
+            const response = await fetch(`https://hospital-40m0.onrender.com/api/patient-portal/update/${editFormData._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editFormData)
@@ -295,7 +295,7 @@ const PatientManager = () => {
                                         </div>
                                         <div className="flex items-center gap-4 text-sm font-bold text-gray-700">
                                             <span>{con.date}</span>
-                                            <span className="text-gray-300">•</span>
+                                            <span className="text-gray-300">â€¢</span>
                                             <span>{con.time}</span>
                                         </div>
                                         {con.notes && (
@@ -319,7 +319,7 @@ const PatientManager = () => {
                                             </div>
                                             <div>
                                                 <p className="font-black text-gray-900 uppercase tracking-tight">{order.item}</p>
-                                                <p className="text-[10px] text-gray-400 font-bold">Order ID: {order.id} • {order.date}</p>
+                                                <p className="text-[10px] text-gray-400 font-bold">Order ID: {order.id} â€¢ {order.date}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-6">

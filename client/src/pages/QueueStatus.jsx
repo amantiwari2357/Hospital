@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import { Search, Bell, Users, Clock, UserPlus, CheckCircle2, MoreVertical, Plus, Info, ChevronDown } from 'lucide-react';
 
 const StatCardQueue = ({ title, value, change, trend, icon: Icon, color }) => (
@@ -28,7 +28,7 @@ const DoctorCard = ({ name, specialty, room, waiting, activePatient }) => (
                 <div>
                     <h4 className="font-black text-gray-900 text-sm tracking-tight">{name}</h4>
                     <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                        {specialty} • Room {room}
+                        {specialty} â€¢ Room {room}
                     </p>
                 </div>
             </div>
@@ -119,7 +119,7 @@ const QueueStatus = () => {
                             <h2 className="text-4xl font-black text-gray-900 tracking-tight">Queue Management</h2>
                             <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Live Updates</span>
                         </div>
-                        <p className="text-gray-500 font-medium">Monday, Oct 24 • <span className="text-blue-600 font-black">09:42 AM</span></p>
+                        <p className="text-gray-500 font-medium">Monday, Oct 24 â€¢ <span className="text-blue-600 font-black">09:42 AM</span></p>
                     </div>
                     <div className="flex flex-wrap items-center gap-4">
                         <div className="relative group">

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { medicinesData } from '../../utils/medicinesData';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -58,7 +58,7 @@ const MedicinePreview = () => {
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-6 italic">{med.category}</p>
 
                             <div className="flex justify-between items-center mb-8 italic">
-                                <span className="text-2xl font-black text-slate-900 italic">₹{med.price}</span>
+                                <span className="text-2xl font-black text-slate-900 italic">â‚¹{med.price}</span>
                                 <div className="flex items-center gap-1">
                                     <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                                     <span className="text-sm font-black text-slate-600 italic">{med.rating}</span>

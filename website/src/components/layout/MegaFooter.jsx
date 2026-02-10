@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { HeartPulse, Phone, Mail, MapPin, ShieldCheck, Globe, Clock, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { diseasesData } from '../../utils/diseasesData';
@@ -166,7 +166,7 @@ const MegaFooter = () => {
                     <Link to="/" className="hover:text-white transition-colors">Site Map</Link>
                 </div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">
-                    © 2026 CareSync International Medical Systems Ltd. All Rights Reserved.
+                    Â© 2026 CareSync International Medical Systems Ltd. All Rights Reserved.
                     Technology powered by CoreEdge Diagnostics.
                 </p>
             </div>

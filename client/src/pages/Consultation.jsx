@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     Search, Plus, MapPin, Clock,
     ChevronDown, X, Pill,
@@ -28,7 +28,7 @@ const Consultation = () => {
                             <img src="https://i.pravatar.cc/150?u=consult" className="w-16 h-16 rounded-2xl object-cover" alt="" />
                             <div>
                                 <h3 className="text-2xl font-black text-gray-900 tracking-tight">John Doe</h3>
-                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Male, 45 yrs • #HMS-8921</p>
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Male, 45 yrs â€¢ #HMS-8921</p>
                             </div>
                         </div>
 
@@ -45,7 +45,7 @@ const Consultation = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <VitalsCard label="BP" value="120/80" unit="mmHg" />
                                 <VitalsCard label="Heart Rate" value="72" unit="bpm" />
-                                <VitalsCard label="Temp" value="98.6" unit="°F" />
+                                <VitalsCard label="Temp" value="98.6" unit="Â°F" />
                                 <VitalsCard label="SpO2" value="98" unit="%" />
                             </div>
                         </div>
@@ -57,8 +57,8 @@ const Consultation = () => {
                                     <ChevronDown className="w-4 h-4 text-gray-400 group-open:rotate-180 transition-transform" />
                                 </summary>
                                 <div className="mt-4 space-y-2">
-                                    <p className="text-xs font-medium text-gray-500">• Type 2 Diabetes (Diagnosed 2018)</p>
-                                    <p className="text-xs font-medium text-gray-500">• Hypertension (Managed with meds)</p>
+                                    <p className="text-xs font-medium text-gray-500">â€¢ Type 2 Diabetes (Diagnosed 2018)</p>
+                                    <p className="text-xs font-medium text-gray-500">â€¢ Hypertension (Managed with meds)</p>
                                 </div>
                             </details>
 
@@ -193,8 +193,8 @@ const Consultation = () => {
                                 <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Prescribed Items (2)</h4>
                                 <div className="space-y-4">
                                     {[
-                                        { name: 'Sumatriptan', info: '50mg • 1-0-0 • 3 Days', note: 'Take at onset of migraine' },
-                                        { name: 'Naproxen', info: '250mg • 1-0-1 • 5 Days', note: 'After food' },
+                                        { name: 'Sumatriptan', info: '50mg â€¢ 1-0-0 â€¢ 3 Days', note: 'Take at onset of migraine' },
+                                        { name: 'Naproxen', info: '250mg â€¢ 1-0-1 â€¢ 5 Days', note: 'After food' },
                                     ].map((item, i) => (
                                         <div key={i} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between group">
                                             <div>

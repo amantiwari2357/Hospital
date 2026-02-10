@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import RevenueTrends from '../components/Reports/RevenueTrends';
 import RevenueByDeptPie from '../components/Reports/RevenueByDeptPie';
 import { Download, Calendar, Filter, ChevronDown, Search, ArrowUpRight, ArrowDownRight, Clock, DollarSign } from 'lucide-react';

@@ -1,4 +1,4 @@
-import { Activity, Heart, Thermometer, Wind } from 'lucide-react';
+﻿import { Activity, Heart, Thermometer, Wind } from 'lucide-react';
 
 const PatientCard = ({ patient }) => {
     const getStatusColor = (status) => {
@@ -64,7 +64,7 @@ const PatientCard = ({ patient }) => {
             {/* Patient Info */}
             <div className="mb-4 pb-4 border-b border-gray-200">
                 <p className="text-sm text-gray-600">
-                    <span className="font-semibold">{patient.age} {patient.gender.charAt(0)}</span> • {patient.diagnosis}
+                    <span className="font-semibold">{patient.age} {patient.gender.charAt(0)}</span> â€¢ {patient.diagnosis}
                 </p>
             </div>
 
@@ -107,7 +107,7 @@ const PatientCard = ({ patient }) => {
                 <div className="bg-gray-50 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-1">
                         <Thermometer className="w-4 h-4 text-orange-500" />
-                        <span className="text-xs font-medium text-gray-600">Temp (°C)</span>
+                        <span className="text-xs font-medium text-gray-600">Temp (Â°C)</span>
                     </div>
                     <p className="text-lg font-bold text-gray-900">{patient.vitals?.temperature}</p>
                 </div>
@@ -133,13 +133,13 @@ const PatientCard = ({ patient }) => {
 
             {/* Last Checked */}
             <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>● Last checked: {Math.floor(Math.random() * 60)} mins ago by {patient.assignedDoctor || 'Dr. Emily'}</span>
+                <span>â— Last checked: {Math.floor(Math.random() * 60)} mins ago by {patient.assignedDoctor || 'Dr. Emily'}</span>
             </div>
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-2 mt-4">
                 <button className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                    📋 Record Vitals
+                    ðŸ“‹ Record Vitals
                 </button>
                 <button className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
                     View Profile

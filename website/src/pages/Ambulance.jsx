@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -60,7 +60,7 @@ const Ambulance = () => {
             name: 'Basic Life Support (BLS)',
             description: 'Equipped with essential medical gear for non-critical emergencies.',
             features: ['Oxygen Support', 'Basic First Aid', 'Vital Monitoring', 'Professional Paramedic'],
-            price: '₹1,500',
+            price: 'â‚¹1,500',
             icon: AmbulanceIcon,
             color: 'bg-blue-500'
         },
@@ -69,7 +69,7 @@ const Ambulance = () => {
             name: 'Advanced Life Support (ALS)',
             description: 'Mobile ICUs for critical trauma and cardiac emergencies.',
             features: ['Defibrillator', 'Ventilator', 'Advanced Meds', 'Critical Care Specialist'],
-            price: '₹3,500',
+            price: 'â‚¹3,500',
             icon: HeartPulse,
             color: 'bg-medical-600'
         },
@@ -78,7 +78,7 @@ const Ambulance = () => {
             name: 'Neonatal Ambulance',
             description: 'Specialized care for newborns requiring immediate transport.',
             features: ['Neonatal Incubator', 'Pediatric Vent', 'Neonatal Specialist', 'Temp Control'],
-            price: '₹4,500',
+            price: 'â‚¹4,500',
             icon: Zap,
             color: 'bg-purple-600'
         }

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Navbar from '../components/layout/Navbar';
 import { Phone, ShieldAlert, Clock, MapPin, HeartPulse, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';

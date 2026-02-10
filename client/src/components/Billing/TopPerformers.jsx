@@ -1,4 +1,4 @@
-import { Zap, Activity, Heart } from 'lucide-react';
+﻿import { Zap, Activity, Heart } from 'lucide-react';
 
 const performers = [
     { name: 'Radiology', invoices: 324, revenue: '$85k', icon: Zap, color: 'bg-blue-100 text-blue-600' },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import {
     User,
@@ -59,7 +59,7 @@ const PatientProfile = () => {
                     Authorization: `Bearer ${userInfo.token}`,
                 },
             };
-            const response = await fetch('http://localhost:5000/api/appointments', config);
+            const response = await fetch('https://hospital-40m0.onrender.com/api/appointments', config);
             const data = await response.json();
             if (Array.isArray(data)) {
                 setAppointments(data);
@@ -71,7 +71,7 @@ const PatientProfile = () => {
 
     const fetchPatients = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/patient-portal/all');
+            const response = await fetch('https://hospital-40m0.onrender.com/api/patient-portal/all');
             const data = await response.json();
             if (data.success) {
                 setPatients(data.data);
@@ -95,7 +95,7 @@ const PatientProfile = () => {
         e.preventDefault();
         setIsSaving(true);
         try {
-            const response = await fetch(`http://localhost:5000/api/patient-portal/update/${editFormData._id}`, {
+            const response = await fetch(`https://hospital-40m0.onrender.com/api/patient-portal/update/${editFormData._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editFormData)
@@ -326,7 +326,7 @@ const PatientProfile = () => {
                                                         {new Date(appt.date).toLocaleDateString()}
                                                     </p>
                                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                        {appt.time} • {appt.doctor?.name || appt.doctor}
+                                                        {appt.time} â€¢ {appt.doctor?.name || appt.doctor}
                                                     </p>
                                                 </div>
                                             </div>

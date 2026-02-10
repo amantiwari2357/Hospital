@@ -1,4 +1,4 @@
-import { Search, Bell, HelpCircle } from 'lucide-react';
+﻿import { Search, Bell, HelpCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Topbar = ({ title, dark = false }) => {
@@ -24,7 +24,7 @@ const Topbar = ({ title, dark = false }) => {
                                 }`}
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-gray-200/20 bg-gray-500/10">
-                            <span className="text-[10px] font-bold text-gray-500 tracking-tighter">⌘ K</span>
+                            <span className="text-[10px] font-bold text-gray-500 tracking-tighter">âŒ˜ K</span>
                         </div>
                     </div>
 

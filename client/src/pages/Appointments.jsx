@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import BookingModal from '../components/Appointments/BookingModal';
 import { Download, Plus, Search, Calendar, Filter, MoreVertical } from 'lucide-react';
@@ -39,7 +39,7 @@ const Appointments = () => {
                     Authorization: `Bearer ${userInfo.token}`,
                 },
             };
-            const { data } = await axios.get('http://localhost:5000/api/appointments', config);
+            const { data } = await axios.get('https://hospital-40m0.onrender.com/api/appointments', config);
             setAppointments(data);
         } catch (error) {
             console.error('Error fetching appointments:', error);

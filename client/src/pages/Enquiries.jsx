@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import Layout from '../components/Layout/Layout';
 import {
     MessageSquare,
@@ -115,7 +115,7 @@ const Enquiries = () => {
                                             </div>
                                             <div>
                                                 <p className="font-black text-gray-900 italic tracking-tight uppercase text-sm">{enq.name}</p>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{enq.id} • {enq.date}</p>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{enq.id} â€¢ {enq.date}</p>
                                             </div>
                                         </div>
                                     </td>

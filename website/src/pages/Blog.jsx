@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import Navbar from '../components/layout/Navbar';
 import { blogPosts } from '../utils/blogData';
 import { Search, Clock, User, ArrowRight, MessageSquare, Tag, TrendingUp } from 'lucide-react';

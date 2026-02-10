@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import React from 'react';
 import {
     Shield, Settings, Clock, Bell, Share2,

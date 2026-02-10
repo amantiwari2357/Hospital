@@ -1,4 +1,4 @@
-import { Clock, Plus, Copy } from 'lucide-react';
+﻿import { Clock, Plus, Copy } from 'lucide-react';
 
 const DaySchedule = ({ day, slots, onAdd }) => (
     <div className="py-6 border-b border-gray-50 last:border-0">

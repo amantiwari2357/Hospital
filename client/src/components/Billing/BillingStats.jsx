@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, DollarSign, Calendar, FileText, Activity } from 'lucide-react';
+﻿import { TrendingUp, TrendingDown, DollarSign, Calendar, FileText, Activity } from 'lucide-react';
 
 const StatCard = ({ title, value, change, trend, icon: Icon, color }) => (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -37,7 +37,7 @@ const PharmacyOrders = () => {
     const fetchOrders = async () => {
         try {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            const response = await fetch('http://localhost:5000/api/orders', {
+            const response = await fetch('https://hospital-40m0.onrender.com/api/orders', {
                 headers: {
                     'Authorization': `Bearer ${userInfo.token}`
                 }
@@ -65,7 +65,7 @@ const PharmacyOrders = () => {
     const updateStatus = async (orderId, newStatus) => {
         try {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+            const response = await fetch(`https://hospital-40m0.onrender.com/api/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ const PharmacyOrders = () => {
                         { label: 'Pending', count: (Array.isArray(orders) ? orders : []).filter(o => o.status === 'Pending').length, icon: Clock, color: 'amber' },
                         { label: 'In Transit', count: (Array.isArray(orders) ? orders : []).filter(o => o.status === 'Shipped').length, icon: Truck, color: 'blue' },
                         { label: 'Delivered', count: (Array.isArray(orders) ? orders : []).filter(o => o.status === 'Delivered').length, icon: CheckCircle, color: 'green' },
-                        { label: 'Total Sales', count: `₹${(Array.isArray(orders) ? orders : []).filter(o => o.status === 'Delivered').reduce((acc, curr) => acc + curr.totalAmount, 0)}`, icon: ShoppingBag, color: 'purple' }
+                        { label: 'Total Sales', count: `â‚¹${(Array.isArray(orders) ? orders : []).filter(o => o.status === 'Delivered').reduce((acc, curr) => acc + curr.totalAmount, 0)}`, icon: ShoppingBag, color: 'purple' }
                     ].map((stat, i) => (
                         <div key={i} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center justify-between group">
                             <div>
@@ -189,7 +189,7 @@ const PharmacyOrders = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="py-6 px-8 font-black text-gray-900 text-lg tracking-tighter">₹{order.totalAmount}</td>
+                                        <td className="py-6 px-8 font-black text-gray-900 text-lg tracking-tighter">â‚¹{order.totalAmount}</td>
                                         <td className="py-6 px-8">
                                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(order.status)}`}>
                                                 {order.status}
@@ -249,9 +249,9 @@ const PharmacyOrders = () => {
                                                 </div>
                                                 <div className="flex-grow">
                                                     <p className="font-black text-gray-900 text-xs uppercase">{item.name}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">₹{item.price} x {item.quantity}</p>
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">â‚¹{item.price} x {item.quantity}</p>
                                                 </div>
-                                                <p className="font-black text-gray-900 text-sm italic pr-2">₹{item.price * item.quantity}</p>
+                                                <p className="font-black text-gray-900 text-sm italic pr-2">â‚¹{item.price * item.quantity}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -307,7 +307,7 @@ const PharmacyOrders = () => {
                                     <div className="space-y-4 pt-6 border-t border-gray-800">
                                         <div className="flex justify-between items-center font-bold text-[10px] uppercase tracking-widest text-gray-400">
                                             <span>Subtotal</span>
-                                            <span className="text-white font-black italic">₹{selectedOrder.totalAmount}</span>
+                                            <span className="text-white font-black italic">â‚¹{selectedOrder.totalAmount}</span>
                                         </div>
                                         <div className="flex justify-between items-center font-bold text-[10px] uppercase tracking-widest text-gray-400">
                                             <span>Delivery</span>
@@ -315,7 +315,7 @@ const PharmacyOrders = () => {
                                         </div>
                                         <div className="flex justify-between items-center pt-2">
                                             <span className="text-xl font-black uppercase italic tracking-tighter">Total Price</span>
-                                            <span className="text-3xl font-black text-blue-500 italic tracking-tighter pr-1">₹{selectedOrder.totalAmount}</span>
+                                            <span className="text-3xl font-black text-blue-500 italic tracking-tighter pr-1">â‚¹{selectedOrder.totalAmount}</span>
                                         </div>
                                     </div>
                                 </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import Navbar from '../components/layout/Navbar';
 import { motion } from 'framer-motion';
 import {
@@ -57,7 +57,7 @@ const PortalLogin = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/patient-portal/login', {
+            const response = await fetch('https://hospital-40m0.onrender.com/api/patient-portal/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -105,7 +105,7 @@ const PortalLogin = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/patient-portal/register', {
+            const response = await fetch('https://hospital-40m0.onrender.com/api/patient-portal/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -284,7 +284,7 @@ const PortalLogin = () => {
                                             required
                                             value={loginData.password}
                                             onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                                            placeholder="••••••••••••"
+                                            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                             className="w-full bg-slate-50 border-none rounded-2xl py-5 pl-16 pr-6 focus:ring-2 focus:ring-medical-500 font-bold outline-none italic"
                                         />
                                     </div>
@@ -425,7 +425,7 @@ const PortalLogin = () => {
                                                 required
                                                 value={registerData.password}
                                                 onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                                                placeholder="••••••••"
+                                                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                                 className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-medical-500 font-bold outline-none text-sm"
                                             />
                                         </div>
@@ -440,7 +440,7 @@ const PortalLogin = () => {
                                                 required
                                                 value={registerData.confirmPassword}
                                                 onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
-                                                placeholder="••••••••"
+                                                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                                 className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-medical-500 font-bold outline-none text-sm"
                                             />
                                         </div>

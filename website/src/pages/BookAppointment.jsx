@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, User, Phone, CheckCircle2, ArrowRight, ShieldCheck, HeartPulse } from 'lucide-react';
@@ -21,7 +21,7 @@ const BookAppointment = () => {
     useEffect(() => {
         const fetchSpecs = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/appointments/specialities');
+                const response = await fetch('https://hospital-40m0.onrender.com/api/appointments/specialities');
                 const data = await response.json();
                 setSpecialities(data.specialities || []);
                 setDoctorsMap(data.doctors || {});
@@ -47,7 +47,7 @@ const BookAppointment = () => {
                 // For now allow proceed or handle error
             }
 
-            const response = await fetch('http://localhost:5000/api/appointments', {
+            const response = await fetch('https://hospital-40m0.onrender.com/api/appointments', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

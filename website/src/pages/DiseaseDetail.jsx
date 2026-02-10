@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { diseasesData } from '../utils/diseasesData';
 import { ArrowLeft, CheckCircle2, Phone, Mail, Clock, ShieldCheck, Stethoscope } from 'lucide-react';

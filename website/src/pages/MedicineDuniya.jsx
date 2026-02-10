@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+﻿import React, { useState, useMemo, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import MedicineCard from '../components/medicines/MedicineCard';
 import { Search, Filter, ShoppingBag, ArrowRight, Zap, Sparkles, Loader } from 'lucide-react';
@@ -14,7 +14,7 @@ const MedicineDuniya = () => {
     useEffect(() => {
         const fetchMedicines = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/medicines');
+                const response = await fetch('https://hospital-40m0.onrender.com/api/medicines');
                 const data = await response.json();
                 setMedicines(data);
             } catch (error) {

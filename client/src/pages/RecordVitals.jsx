@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     Activity, Heart, Thermometer, User,
     Clock, AlertCircle, CheckCircle2,
@@ -90,7 +90,7 @@ const RecordVitals = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-                                <VitalInput label="Temperature" value="98.6" unit="°F" prev="98.4°F" icon={Thermometer} color="bg-orange-500" />
+                                <VitalInput label="Temperature" value="98.6" unit="Â°F" prev="98.4Â°F" icon={Thermometer} color="bg-orange-500" />
                                 <VitalInput label="Blood Pressure" value="120/80" unit="mmHg" prev="118/79" icon={Droplet} color="bg-blue-500" />
                                 <VitalInput label="Pulse Rate" value="105" unit="bpm" prev="72 bpm" status="High" icon={Heart} color="bg-red-500" />
                                 <VitalInput label="SpO2" value="98" unit="%" prev="99%" icon={Wind} color="bg-purple-500" />
@@ -198,7 +198,7 @@ const RecordVitals = () => {
                                                 </div>
                                                 <div>
                                                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Temp / SpO2</p>
-                                                    <p className="text-xs font-black text-gray-700">{log.temp}°F / {log.spo2}%</p>
+                                                    <p className="text-xs font-black text-gray-700">{log.temp}Â°F / {log.spo2}%</p>
                                                 </div>
                                             </div>
                                             <div className="mt-4 pt-4 border-t border-dashed border-gray-100 text-[9px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">

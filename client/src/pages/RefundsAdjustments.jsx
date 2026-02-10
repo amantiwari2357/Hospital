@@ -1,4 +1,4 @@
-import Layout from '../components/Layout/Layout';
+﻿import Layout from '../components/Layout/Layout';
 import {
     Search, Filter, ChevronDown, Download,
     ChevronLeft, ChevronRight, MoreVertical,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import {
     Globe, ShieldCheck, Pill, Ambulance, Activity, ChevronRight, Settings, Eye, Edit3,
@@ -28,8 +28,8 @@ const WebsiteCMS = () => {
             const headers = { 'Authorization': `Bearer ${token}` };
 
             const [staffRes, diseaseRes] = await Promise.all([
-                fetch('http://localhost:5000/api/staff', { headers }),
-                fetch('http://localhost:5000/api/diseases')
+                fetch('https://hospital-40m0.onrender.com/api/staff', { headers }),
+                fetch('https://hospital-40m0.onrender.com/api/diseases')
             ]);
 
             const staffData = await staffRes.json();
@@ -48,7 +48,7 @@ const WebsiteCMS = () => {
         e.preventDefault();
         try {
             const token = JSON.parse(localStorage.getItem('userInfo')).token;
-            const res = await fetch(`http://localhost:5000/api/staff/${editingDoc._id}`, {
+            const res = await fetch(`https://hospital-40m0.onrender.com/api/staff/${editingDoc._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -69,8 +69,8 @@ const WebsiteCMS = () => {
         e.preventDefault();
         const method = editingDisease?._id ? 'PUT' : 'POST';
         const url = editingDisease?._id
-            ? `http://localhost:5000/api/diseases/${editingDisease.id}`
-            : 'http://localhost:5000/api/diseases';
+            ? `https://hospital-40m0.onrender.com/api/diseases/${editingDisease.id}`
+            : 'https://hospital-40m0.onrender.com/api/diseases';
 
         try {
             const token = JSON.parse(localStorage.getItem('userInfo')).token;
@@ -96,7 +96,7 @@ const WebsiteCMS = () => {
         if (!window.confirm('Are you sure you want to delete this disease entry?')) return;
         try {
             const token = JSON.parse(localStorage.getItem('userInfo')).token;
-            const res = await fetch(`http://localhost:5000/api/diseases/${id}`, {
+            const res = await fetch(`https://hospital-40m0.onrender.com/api/diseases/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

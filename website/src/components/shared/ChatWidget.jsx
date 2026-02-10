@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { MessageSquare, X, Send, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

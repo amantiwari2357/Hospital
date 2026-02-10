@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout/Layout';
 import StatsCard from '../components/Dashboard/StatsCard';
@@ -37,7 +37,7 @@ const Dashboard = () => {
                         Authorization: `Bearer ${userInfo.token}`,
                     },
                 };
-                const { data } = await axios.get('http://localhost:5000/api/stats/dashboard', config);
+                const { data } = await axios.get('https://hospital-40m0.onrender.com/api/stats/dashboard', config);
                 setStats(data);
             } catch (error) {
                 console.error('Error fetching stats:', error);
