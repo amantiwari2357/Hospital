@@ -108,13 +108,20 @@ const SkinAI = () => {
         setDiagnosisId(null);
 
         try {
-            const response = await fetch('https://bcrm.100acress.com/api/skin-diagnosis/analyze', {
+            const response = await fetch('https://hospital-40m0.onrender.com/api/skin-diagnosis/analyze', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ image: imageData })
             });
+
+            // Defensive check for non-JSON responses (e.g. 404 HTML)
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await response.text();
+                throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+            }
 
             const data = await response.json();
 
@@ -158,7 +165,7 @@ const SkinAI = () => {
 
         setIsSubmittingConsultation(true);
         try {
-            const response = await fetch(`https://bcrm.100acress.com/api/skin-diagnosis/${diagnosisId}`, {
+            const response = await fetch(`https://hospital-40m0.onrender.com/api/skin-diagnosis/${diagnosisId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -422,7 +429,7 @@ const SkinAI = () => {
                                                 <div>
                                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Suggested Next Steps</p>
                                                     <div className="grid gap-3">
-                                                        {(result?.suggestions || []).map((s, i) => (
+                                                        {Array.isArray(result?.suggestions) && result.suggestions.map((s, i) => (
                                                             <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100 shadow-sm transition-all hover:translate-x-1">
                                                                 <AlertCircle className="w-3.5 h-3.5 text-medical-500" />
                                                                 <span className="text-xs font-bold text-slate-700">{s}</span>

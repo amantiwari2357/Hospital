@@ -26,7 +26,7 @@ const Profile = () => {
                 };
 
                 // Fetch full profile
-                const profileRes = await fetch('https://bcrm.100acress.com/api/users/profile', config);
+                const profileRes = await fetch('https://hospital-40m0.onrender.com/api/users/profile', config);
                 const profile = await profileRes.json();
 
                 if (profileRes.ok) {
@@ -34,7 +34,7 @@ const Profile = () => {
                 }
 
                 // Fetch Appointments (existing logic)
-                const apptRes = await fetch(`https://bcrm.100acress.com/api/appointments?doctor=${encodeURIComponent(user?.name)}`, config);
+                const apptRes = await fetch(`https://hospital-40m0.onrender.com/api/appointments?doctor=${encodeURIComponent(user?.name)}`, config);
                 const apptData = await apptRes.json();
                 setAppointments(Array.isArray(apptData) ? apptData : []);
 
@@ -78,7 +78,7 @@ const Profile = () => {
                 body: JSON.stringify(profileData)
             };
 
-            const response = await fetch('https://bcrm.100acress.com/api/users/profile', config);
+            const response = await fetch('https://hospital-40m0.onrender.com/api/users/profile', config);
             const data = await response.json();
 
             if (response.ok) {

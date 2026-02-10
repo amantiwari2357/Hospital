@@ -39,9 +39,15 @@ const SkinAIDiagnosisManager = () => {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
             if (!userInfo || !userInfo.token) return;
 
-            const response = await fetch('https://bcrm.100acress.com/api/skin-diagnosis', {
+            const response = await fetch('https://hospital-40m0.onrender.com/api/skin-diagnosis', {
                 headers: { Authorization: `Bearer ${userInfo.token}` }
             });
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server returned non-JSON response");
+            }
+
             const data = await response.json();
 
             if (response.ok) {
@@ -76,7 +82,7 @@ const SkinAIDiagnosisManager = () => {
     const handleSubmitVerdict = async () => {
         try {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            const response = await fetch(`https://bcrm.100acress.com/api/skin-diagnosis/${selectedDiagnosis}`, {
+            const response = await fetch(`https://hospital-40m0.onrender.com/api/skin-diagnosis/${selectedDiagnosis}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -105,7 +111,7 @@ const SkinAIDiagnosisManager = () => {
         if (!newMessage.trim()) return;
         try {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            const response = await fetch(`https://bcrm.100acress.com/api/skin-diagnosis/${selectedDiagnosis}`, {
+            const response = await fetch(`https://hospital-40m0.onrender.com/api/skin-diagnosis/${selectedDiagnosis}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -276,7 +282,7 @@ const SkinAIDiagnosisManager = () => {
                             <div className="bg-white rounded-[3rem] border border-gray-100 shadow-sm p-8">
                                 <h4 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-6">AI Recommendations</h4>
                                 <div className="grid grid-cols-1 gap-4">
-                                    {(currentDiagnosis.recommendations || []).map((rec, i) => (
+                                    {Array.isArray(currentDiagnosis.recommendations) && currentDiagnosis.recommendations.map((rec, i) => (
                                         <div key={i} className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl">
                                             <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                                             <p className="text-sm font-bold text-gray-700">{rec}</p>
@@ -445,7 +451,7 @@ const SkinAIDiagnosisManager = () => {
                                 </button>
                             </div>
                             <div className="flex-1 overflow-y-auto p-8 space-y-4">
-                                {currentDiagnosis.interactions.length === 0 ? (
+                                {!Array.isArray(currentDiagnosis.interactions) || currentDiagnosis.interactions.length === 0 ? (
                                     <div className="h-full flex flex-col items-center justify-center text-gray-300 italic">
                                         <Mail className="w-12 h-12 mb-4" />
                                         <p>No recorded interactions yet.</p>
