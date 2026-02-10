@@ -271,8 +271,8 @@ const SkinAIDiagnosisManager = () => {
                                                                 >
                                                                     <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                                                                 </button>
-                                                                <div className={`absolute ${isLeft ? 'left-8' : 'right-8'} whitespace-nowrap px-1.5 py-0.5 bg-white/90 rounded-full border border-gray-100 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity`}>
-                                                                    <span className={`text-[7px] font-black uppercase tracking-tighter ${textColor}`}>
+                                                                <div className={`absolute ${isLeft ? 'left-7' : 'right-7'} whitespace-nowrap transition-all group-hover:scale-110 pointer-events-none`}>
+                                                                    <span className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-900">
                                                                         {hotspot.label}
                                                                     </span>
                                                                 </div>

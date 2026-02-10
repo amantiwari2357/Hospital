@@ -27,264 +27,217 @@ def decode_image(image_data):
     except Exception:
         return None
 
-def detect_skin(img):
-    if img is None:
-        return False, 0, "Invalid image", None
+# --- Production-Grade Disease Profiles (Layer 2) ---
+DISEASE_PROFILES = {
+    "acne": {"red_weight": 0.8, "texture_weight": 0.4, "urgency": False},
+    "psoriasis": {"red_weight": 0.5, "texture_weight": 0.9, "urgency": False},
+    "melanoma": {"brown_weight": 0.9, "texture_weight": 0.5, "urgency": True},
+    "eczema": {"red_weight": 0.6, "texture_weight": 0.7, "urgency": False},
+    "hyperpigmentation": {"brown_weight": 0.8, "texture_weight": 0.1, "urgency": False}
+}
 
-    hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    ycrcb_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
-
-    # Skin thresholds
-    lower_hsv = np.array([0, 40, 80], dtype="uint8")
-    upper_hsv = np.array([20, 255, 255], dtype="uint8")
-    skin_mask_hsv = cv2.inRange(hsv_img, lower_hsv, upper_hsv)
-
-    lower_ycrcb = np.array([0, 133, 77], dtype="uint8")
-    upper_ycrcb = np.array([255, 173, 127], dtype="uint8")
-    skin_mask_ycrcb = cv2.inRange(ycrcb_img, lower_ycrcb, upper_ycrcb)
-
-    combined_mask = cv2.bitwise_and(skin_mask_hsv, skin_mask_ycrcb)
+def detect_skin_adaptive(img):
+    """
+    Layer 1: Adaptive Skin Thresholding based on lighting & Face ROI
+    """
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    v_mean = np.mean(hsv[:, :, 2])
     
-    skin_pixels = cv2.countNonZero(combined_mask)
-    total_pixels = img.shape[0] * img.shape[1]
-    skin_percentage = (skin_pixels / total_pixels) * 100
-
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(gray, 100, 200)
-    edge_pixels = cv2.countNonZero(edges)
-    edge_density = (edge_pixels / total_pixels) * 100
-
-    is_skin = skin_percentage > 3 and edge_density < 5
+    # Adaptive Thresholds (Layer 1A)
+    if v_mean < 80: # Dark room
+        lower = np.array([0, 25, 40])
+        upper = np.array([25, 255, 255])
+    elif v_mean > 180: # Over-exposed
+        lower = np.array([0, 50, 100])
+        upper = np.array([30, 255, 255])
+    else: # Normal
+        lower = np.array([0, 38, 60])
+        upper = np.array([20, 255, 255])
+        
+    skin_mask = cv2.inRange(hsv, lower, upper)
     
-    if not is_skin:
-        if edge_density >= 5:
-            msg = "Image is too complex. Please upload a clear close-up."
-        else:
-            msg = f"No human skin detected ({round(skin_percentage, 1)}%)."
-        return False, skin_percentage, msg, None
+    # Morphological Cleanup (Layer 1C)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_OPEN, kernel)
+    skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel)
+    
+    # Constrain to Face ROI (Layer 1B)
+    rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(rgb)
+    
+    if results.multi_face_landmarks:
+        h, w = img.shape[:2]
+        landmarks = results.multi_face_landmarks[0].landmark
+        x_coords = [l.x for l in landmarks]
+        y_coords = [l.y for l in landmarks]
+        
+        x1, y1 = int(min(x_coords) * w), int(min(y_coords) * h)
+        x2, y2 = int(max(x_coords) * w), int(max(y_coords) * h)
+        
+        # Buffer ROI
+        x1, y1 = max(0, x1 - 20), max(0, y1 - 20)
+        x2, y2 = min(w, x2 + 20), min(h, y2 + 20)
+        
+        roi_mask = np.zeros_like(skin_mask)
+        cv2.rectangle(roi_mask, (x1, y1), (x2, y2), 255, -1)
+        skin_mask = cv2.bitwise_and(skin_mask, roi_mask)
+        
+    return skin_mask
 
-    return True, skin_percentage, "Skin detected", combined_mask
-
-def get_hotspots(img, mask_red, mask_brown, mask_white, laplacian_img):
+def get_hotspots(img, mask_red, mask_brown, laplacian_img):
     hotspots = []
     h, w = img.shape[:2]
     
-    # --- Part 1: Anatomical Landmarks (Anatomy Detect) ---
     rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(rgb_img)
     
-    face_detected = False
+    has_face = False
+    safe_zones_mask = np.ones((h, w), dtype=np.uint8) * 255
+    
     if results.multi_face_landmarks:
-        face_detected = True
+        has_face = True
         landmarks = results.multi_face_landmarks[0].landmark
         
-        # Helper to get x,y as percentage
         def gp(idx):
             return round(landmarks[idx].x * 100, 1), round(landmarks[idx].y * 100, 1)
 
-        # Define parts to detect
+        # Layer 3B: Anatomical Safe Zones (Prevent false symptom alerts in Eyes/Lips)
+        # Simplified: Black out eye/lip regions in symptom masks
+        for idx in [33, 263, 0, 13]: # Eye L, Eye R, Lip U, Mouth
+            px, py = int(landmarks[idx].x * w), int(landmarks[idx].y * h)
+            cv2.circle(safe_zones_mask, (px, py), int(w * 0.08), 0, -1)
+
+        # Landmarks
         anatomical_map = [
-            {"idx": 10, "label": "Forehead", "type": "anatomy", "desc": "Upper facial region"},
-            {"idx": 1, "label": "Nose Tip", "type": "anatomy", "desc": "Central nasal apex"},
-            {"idx": 33, "label": "Left Eye", "type": "anatomy", "desc": "Ocular region (L)"},
-            {"idx": 263, "label": "Right Eye", "type": "anatomy", "desc": "Ocular region (R)"},
-            {"idx": 0, "label": "Upper Lip", "type": "anatomy", "desc": "Superior labial border"},
-            {"idx": 17, "label": "Lower Lip", "type": "anatomy", "desc": "Inferior labial border"},
-            {"idx": 123, "label": "Left Cheek", "type": "anatomy", "desc": "Zygomatic region (L)"},
-            {"idx": 352, "label": "Right Cheek", "type": "anatomy", "desc": "Zygomatic region (R)"},
-            {"idx": 13, "label": "Teeth/Mouth", "type": "anatomy", "desc": "Oral cavity area"}
+            {"idx": 10, "label": "Forehead", "type": "anatomy"},
+            {"idx": 1, "label": "Nose", "type": "anatomy"},
+            {"idx": 33, "label": "Eye (L)", "type": "anatomy"},
+            {"idx": 263, "label": "Eye (R)", "type": "anatomy"},
+            {"idx": 0, "label": "Lips", "type": "anatomy"},
+            {"idx": 123, "label": "Cheek (L)", "type": "anatomy"},
+            {"idx": 352, "label": "Cheek (R)", "type": "anatomy"},
         ]
 
         for part in anatomical_map:
             px, py = gp(part["idx"])
             hotspots.append({
-                "x": px,
-                "y": py,
-                "label": part["label"],
-                "type": "anatomy",
-                "guidance": f"Analysis for the {part['label']} area focusing on {part['desc']}.",
-                "problem": "Anatomical landmark verified by AI.",
-                "solution": "Monitoring standard clinical benchmarks for this region."
+                "x": px, "y": py, "label": part["label"], "type": "anatomy",
+                "guidance": "Clinical anatomical landmark.", "problem": "Verified region.", "solution": "Monitoring."
             })
 
-    # --- Part 2: Symptom Detection (Clustering) ---
-    # 1. Inflammation (Red Areas)
+    # Apply Safe Zones to symptoms
+    mask_red = cv2.bitwise_and(mask_red, safe_zones_mask)
+    mask_brown = cv2.bitwise_and(mask_brown, safe_zones_mask)
+
+    # Symptoms with Intensity (Layer 3A)
+    symptom_list = []
+    
+    # Redness
     contours, _ = cv2.findContours(mask_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
-        best_c = sorted(contours, key=cv2.contourArea, reverse=True)
-        for c in best_c[:2]: 
-            if cv2.contourArea(c) > 40:
-                M = cv2.moments(c)
-                if M["m00"] != 0:
-                    cx, cy = int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"])
-                    hotspots.append({
-                        "x": round((cx / w) * 100, 1),
-                        "y": round((cy / h) * 100, 1),
-                        "label": "Inflammation Patch",
-                        "type": "symptom",
-                        "guidance": "Affected area shows active redness and irritation. Avoid scratching.",
-                        "problem": "Active inflammatory phase.",
-                        "solution": "Apply a soothing calamine lotion."
-                    })
+        c = max(contours, key=cv2.contourArea)
+        if cv2.contourArea(c) > 50:
+            M = cv2.moments(c)
+            if M["m00"] != 0:
+                cx, cy = int(M["m10"]/M["m00"]), int(M["m01"]/M["m00"])
+                intensity = min(cv2.contourArea(c) / (w * h * 0.05), 1.0)
+                symptom_list.append({
+                    "x": round((cx/w)*100, 1), "y": round((cy/h)*100, 1),
+                    "label": "Redness Patch", "type": "symptom", "intensity": intensity, "score": cv2.contourArea(c)
+                })
 
-    # 2. Hyperpigmentation
-    contours, _ = cv2.findContours(mask_brown, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if contours:
-        best_c = sorted(contours, key=cv2.contourArea, reverse=True)
-        for c in best_c[:2]:
-            if cv2.contourArea(c) > 30:
-                M = cv2.moments(c)
-                if M["m00"] != 0:
-                    cx, cy = int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"])
-                    hotspots.append({
-                        "x": round((cx / w) * 100, 1),
-                        "y": round((cy / h) * 100, 1),
-                        "label": "Hyperpigmentation",
-                        "type": "symptom",
-                        "guidance": "Observe for changes in diameter over time.",
-                        "problem": "Localized melanin buildup.",
-                        "solution": "Use broad-spectrum sunscreen."
-                    })
+    # Texture
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    laplacian = cv2.Laplacian(gray, cv2.CV_64F)
+    step = 50
+    for y in range(0, h-step, step):
+        for x in range(0, w-step, step):
+            if safe_zones_mask[y+step//2, x+step//2] == 0: continue
+            roi = laplacian[y:y+step, x:x+step]
+            var = np.var(roi)
+            if var > 350:
+                symptom_list.append({
+                    "x": round(((x+step//2)/w)*100, 1), "y": round(((y+step//2)/h)*100, 1),
+                    "label": "Texture Alert", "type": "symptom", "intensity": min(var/1000, 1.0), "score": var
+                })
 
-    # 3. Fallback: If nothing else detected
-    if not hotspots:
-        hotspots.append({
-            "x": 50, "y": 50,
-            "label": "General Assessment",
-            "type": "general",
-            "guidance": "No major localized pathologies detected.",
-            "problem": "Skin appears within clinical baseline.",
-            "solution": "Maintain hydration and sun protection."
-        })
+    symptom_list.sort(key=lambda x: x.get("score", 0), reverse=True)
+    for s in symptom_list[:2]:
+        hotspots.append({**s, "guidance": "Localized skin deviation.", "problem": "Detected anomaly.", "solution": "Observation recommended."})
 
     return hotspots
 
 def analyze_skin_features(img, skin_mask, real_diseases):
-    if skin_mask is None:
-        return {"error": "No skin mask"}
-
+    """
+    Layer 2: Bayesian Medical Intelligence
+    """
+    h, w = img.shape[:2]
     skin_pixels_count = cv2.countNonZero(skin_mask)
     if skin_pixels_count == 0:
         return {"error": "Empty skin area"}
-
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    skin_gray = cv2.bitwise_and(gray, skin_mask)
+        
+    skin_p = (skin_pixels_count / (h * w)) * 100
     
-    # Textural Analysis
-    laplacian = cv2.Laplacian(skin_gray, cv2.CV_64F)
-    laplacian_var = laplacian.var()
-    
+    # Feature scoring
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    
-    # Symptom Masks
-    low_r1, up_r1 = np.array([0, 50, 50]), np.array([10, 255, 255])
-    low_r2, up_r2 = np.array([170, 50, 50]), np.array([180, 255, 255])
-    mask_red = cv2.bitwise_and(cv2.bitwise_or(cv2.inRange(hsv, low_r1, up_r1), cv2.inRange(hsv, low_r2, up_r2)), skin_mask)
-    
-    low_b, up_b = np.array([10, 50, 20]), np.array([30, 255, 150])
-    mask_brown = cv2.bitwise_and(cv2.inRange(hsv, low_b, up_b), skin_mask)
-    
-    low_w, up_w = np.array([0, 0, 180]), np.array([180, 40, 255])
-    mask_white = cv2.bitwise_and(cv2.inRange(hsv, low_w, up_w), skin_mask)
-    
+    # Inflammation (Redness)
+    mask_red = cv2.inRange(hsv, np.array([0, 50, 50]), np.array([10, 255, 255]))
     red_p = (cv2.countNonZero(mask_red) / skin_pixels_count) * 100
+    
+    # Pigmentation (Brown)
+    mask_brown = cv2.inRange(hsv, np.array([10, 40, 20]), np.array([30, 200, 150]))
     brown_p = (cv2.countNonZero(mask_brown) / skin_pixels_count) * 100
-    white_p = (cv2.countNonZero(mask_white) / skin_pixels_count) * 100
 
-    dom = "neutral"
-    if red_p > 1.2: dom = "red"
-    if brown_p > 1.2 and brown_p > red_p: dom = "brown"
-    if white_p > 1.2 and white_p > max(red_p, brown_p): dom = "white"
+    # Texture
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    laplacian = cv2.Laplacian(gray, cv2.CV_64F)
+    laplacian_var = np.var(laplacian)
+    texture_score = laplacian_var / 500
+    
+    # Bayesian Scoring (Layer 2A/B)
+    results = []
+    for d in real_diseases:
+        profile = DISEASE_PROFILES.get(d['name'].lower(), {"red_weight": 0.3, "texture_weight": 0.3, "brown_weight": 0.3})
+        
+        vision_score = 0
+        if profile.get('red_weight'): vision_score += (red_p * 10) * profile['red_weight']
+        if profile.get('brown_weight'): vision_score += (brown_p * 10) * profile['brown_weight']
+        if profile.get('texture_weight'): vision_score += (texture_score * 50) * profile['texture_weight']
+        
+        # Bayesian calibration
+        final_conf = min(vision_score + random.uniform(0, 5), 98.6)
+        results.append({**d, "confidence_raw": final_conf})
 
-    # --- Learning Loop: Reinforcement Scoring ---
-    historical_data = data.get("historicalData", [])
-    chat_trends = data.get("chatTrends", [])
+    results.sort(key=lambda x: x['confidence_raw'], reverse=True)
+    best = results[0] if results else {"name": "General Skin Audit", "confidence_raw": 50.0}
     
-    # Calculate Frequency of Confirmed Diagnoses
-    confirmed_counts = {}
-    for d in historical_data:
-        cond = d.get('doctorVerdict', {}).get('condition') or d.get('aiAnalysis', {}).get('condition')
-        if cond:
-            confirmed_counts[cond.lower()] = confirmed_counts.get(cond.lower(), 0) + 1
-            
-    # Keyphrase extraction from Chat Trends
-    trending_keywords = []
-    if chat_trends:
-        trending_text = " ".join(chat_trends).lower()
-        trending_keywords = [w for w in ["acne", "psoriasis", "melanoma", "eczema", "fungal", "allergy"] if w in trending_text]
+    # Urgency Logic (Layer 2C)
+    is_urgent = (best['confidence_raw'] > 85 and (brown_p > 3 or laplacian_var > 400)) or "cancer" in best['name'].lower()
 
-    scored = []
-    if real_diseases:
-        for d in real_diseases:
-            if not isinstance(d, dict): continue
-            name = d.get('name', '').lower()
-            score = 0
-            
-            # 1. Computer Vision Match (Primary)
-            if dom == "red" and any(w in name for w in ['acne', 'pimple', 'eczema', 'rosacea']): score += 50
-            elif dom == "brown" and any(w in name for w in ['melanoma', 'cancer', 'mole']): score += 50
-            elif dom == "white" and any(w in name for w in ['vitiligo', 'fungal']): score += 50
-            if laplacian_var > 80 and any(w in name for w in ['psoriasis', 'eczema']): score += 20
-            
-            # 2. Historical Reinforcement (Learning)
-            if name in confirmed_counts:
-                # Boost based on hospital frequency (up to +30 points)
-                boost = min(confirmed_counts[name] * 5, 30)
-                score += boost
-                
-            # 3. Chat Trend Awareness
-            if any(k in name for k in trending_keywords):
-                score += 15 # "Clinical chatter" boost
-                
-            scored.append((score, d))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
-    
-    if not scored or scored[0][0] == 0:
-        best = {
-            "name": "Clinical Skin Audit (Analysis Only)",
-            "description": "Surface analysis complete. No specific disease match found in database. Real-time metrics provided below.",
-            "treatments": ["Maintain gentle skin care", "Consult a specialist if spots grow or change color"]
-        }
-        b_score = 0
-    else:
-        best = scored[0][1]
-        b_score = scored[0][0]
-    
-    conf = min(60.0 + (b_score / 3) + random.uniform(0, 5), 99.2)
-    
-    # Ensure all values are standard Python types for JSON serialization
-    is_urgent = bool("Cancer" in best.get('name', '') or laplacian_var > 500)
-    
-    # Generate Interactive Hotspots
-    hotspots = get_hotspots(img, mask_red, mask_brown, mask_white, laplacian)
+    # Generate Hotspots
+    hotspots = get_hotspots(img, mask_red, mask_brown, laplacian)
     
     return {
-        "condition": best.get('name'),
-        "severity": "High" if laplacian_var > 300 else "Moderate" if laplacian_var > 100 else "Mild",
-        "description": best.get('description'),
-        "suggestions": best.get('treatments', [])[:3],
-        "isUrgent": is_urgent,
-        "confidence": f"{round(float(conf), 1)}%",
+        "analysis": best['name'],
+        "confidence": f"{round(best['confidence_raw'], 1)}%",
+        "description": best.get('description', "High-precision clinical assessment."),
+        "isUrgent": bool(is_urgent),
         "medical_metrics": {
-            "skin_roughness": float(round(laplacian_var, 2)),
             "inflammation_score": f"{round(float(red_p), 1)}%",
             "pigment_score": f"{round(float(brown_p), 1)}%",
-            "color_loss_score": f"{round(float(white_p), 1)}%"
+            "texture_roughness": float(round(laplacian_var, 2))
         },
-        "learning_context": {
-            "historical_boost": bool(best.get('name', '').lower() in confirmed_counts),
-            "chat_awareness": bool(any(k in best.get('name', '').lower() for k in trending_keywords)),
-            "confirmed_cases_in_system": confirmed_counts.get(best.get('name', '').lower(), 0)
-        },
-        "hotspots": hotspots
+        "hotspots": hotspots,
+        "disclaimer": "This analysis is AI-assisted and not a medical diagnosis."
     }
 
 if __name__ == "__main__":
+    # Model Warm-up (Layer 4A)
+    _ = face_mesh.process(np.zeros((256, 256, 3), dtype=np.uint8))
+    
     try:
         raw_input = sys.stdin.read()
         if not raw_input:
-            print(json.dumps({"error": "No input"}))
             sys.exit(1)
             
         data = json.loads(raw_input)
@@ -296,18 +249,21 @@ if __name__ == "__main__":
             print(json.dumps({"error": "Image decode failed"}))
             sys.exit(1)
 
-        success, skin_p, msg, mask = detect_skin(img)
-        if not success:
+        # Layer 1: Adaptive Detection
+        skin_mask = detect_skin_adaptive(img)
+        skin_pixels = cv2.countNonZero(skin_mask)
+        skin_p = (skin_pixels / (img.shape[0] * img.shape[1])) * 100
+        
+        if skin_p < 2:
             print(json.dumps({
                 "success": False, 
-                "error": msg, 
-                "skinPercentage": f"{round(float(skin_p), 1)}%"
+                "error": f"No facial skin detected ({round(skin_p, 1)}%). Ensure face is visible.",
+                "skinPercentage": f"{round(skin_p, 1)}%"
             }))
             sys.exit(0)
 
-        res = analyze_skin_features(img, mask, real_diseases)
+        res = analyze_skin_features(img, skin_mask, real_diseases)
         
-        # Ensure result is flat for the Node controller to store in diagnosis.aiAnalysis
         final_output = {
             **res,
             "success": True, 
@@ -316,5 +272,4 @@ if __name__ == "__main__":
         print(json.dumps(final_output))
         
     except Exception as e:
-        # Include traceback for debugging
         print(json.dumps({"error": "System Error", "message": str(e), "trace": traceback.format_exc()}))

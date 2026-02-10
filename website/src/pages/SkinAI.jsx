@@ -404,19 +404,31 @@ const SkinAI = () => {
                                                         style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, transform: 'translate(-50%, -50%)' }}
                                                     >
                                                         <div className="relative flex items-center">
-                                                            {/* Label Text next to marker */}
-                                                            <div className={`absolute ${isLeft ? 'left-10' : 'right-10'} whitespace-nowrap px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full border border-slate-100 shadow-sm transition-all group-hover:scale-110`}>
-                                                                <span className={`text-[8px] font-black uppercase tracking-tighter ${textColor}`}>
+                                                            {/* Label Text next to marker - Minimalist Style */}
+                                                            <div className={`absolute ${isLeft ? 'left-8' : 'right-8'} whitespace-nowrap transition-all group-hover:scale-110 pointer-events-none`}>
+                                                                <span className="text-[7px] font-black uppercase tracking-[0.25em] text-slate-900">
                                                                     {hotspot.label}
                                                                 </span>
                                                             </div>
 
-                                                            {/* Multiple Blinking Rings */}
-                                                            <div className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-20 scale-[3]`} />
-                                                            <div className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-40 scale-[2]`} style={{ animationDelay: '0.5s' }} />
+                                                            {/* Multiple Blinking Rings - Scaled by Intensity */}
+                                                            <div
+                                                                className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-20`}
+                                                                style={{ transform: `scale(${3 * (hotspot.intensity || 0.8)})` }}
+                                                            />
+                                                            <div
+                                                                className={`absolute inset-0 ${pulseColor} rounded-full animate-ping opacity-40`}
+                                                                style={{ animationDelay: '0.5s', transform: `scale(${2 * (hotspot.intensity || 0.8)})` }}
+                                                            />
 
-                                                            {/* Central Core */}
-                                                            <div className={`w-5 h-5 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all ${activeHotspot === hotspot ? 'scale-125' : ''} ${markerColor}`}>
+                                                            {/* Central Core - Scaled by Intensity */}
+                                                            <div
+                                                                className={`rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all ${activeHotspot === hotspot ? 'scale-125' : ''} ${markerColor}`}
+                                                                style={{
+                                                                    width: `${20 * (hotspot.intensity || 0.9)}px`,
+                                                                    height: `${20 * (hotspot.intensity || 0.9)}px`
+                                                                }}
+                                                            >
                                                                 <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                                                             </div>
                                                         </div>
